@@ -1,0 +1,103 @@
+\<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+
+    <!-- ── Viewport (mobile-first, no zoom lock) ── -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- ── Primary SEO ── -->
+    <title>Rotaract Club of Coimbatore Gaalaxy</title>
+    <meta
+      name="description"
+      content="Official website of Rotaract Club of Coimbatore Gaalaxy — a youth-led service and leadership organisation under RI District 3206. Explore our community projects, events, and membership opportunities."
+    />
+    <meta name="keywords" content="Rotaract Coimbatore, Gaalaxy, Rotaract Club, RI District 3206, youth leadership, community service, Coimbatore NGO" />
+    <meta name="author" content="Rotaract Club of Coimbatore Gaalaxy" />
+    <link rel="canonical" href="https://www.rotaractcbegaalaxy.org/" />
+
+    <!-- ── Open Graph (Facebook, WhatsApp, LinkedIn shares) ── -->
+    <meta property="og:type"        content="website" />
+    <meta property="og:url"         content="https://www.rotaractcbegaalaxy.org/" />
+    <meta property="og:site_name"   content="Rotaract Club of Coimbatore Gaalaxy" />
+    <meta property="og:title"       content="Rotaract Club of Coimbatore Gaalaxy | Youth Service & Leadership" />
+    <meta
+      property="og:description"
+      content="Youth-led service and leadership club under RI District 3206, Coimbatore. 15+ years of community impact, 500+ projects, and growing."
+    />
+    <meta property="og:image"       content="https://www.rotaractcbegaalaxy.org/og-banner.jpg" />
+    <meta property="og:image:width"  content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale"      content="en_IN" />
+
+    <!-- ── Twitter Card ── -->
+    <meta name="twitter:card"        content="summary_large_image" />
+    <meta name="twitter:site"        content="@Rac_Gaalaxy" />
+    <meta name="twitter:title"       content="Rotaract Club of Coimbatore Gaalaxy" />
+    <meta
+      name="twitter:description"
+      content="Youth-led service & leadership club, RI District 3206, Coimbatore. 500+ projects, 15+ years of impact."
+    />
+    <meta name="twitter:image"       content="https://www.rotaractcbegaalaxy.org/og-banner.jpg" />
+
+    <!-- ── Robots ── -->
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+
+    <!-- ── Favicon set ── -->
+    <link rel="icon"             href="/favicon.ico" sizes="any" />
+    <link rel="icon"             href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest"         href="/site.webmanifest" />
+    <meta name="theme-color"     content="#17458f" />
+
+    <!-- ── Preconnect to Google Fonts (performance) ── -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- ── No-JS fallback ── -->
+    <noscript>
+      <style>
+        #noscript-msg { display: flex !important; }
+      </style>
+    </noscript>
+    <script type="module" crossorigin src="/assets/index-lIAYv9L_.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-BWROt3Bg.css">
+  </head>
+  <body>
+    <!-- ── No-JS message ── -->
+    <div
+      id="noscript-msg"
+      style="
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: #fff;
+        z-index: 9999;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 2rem;
+        font-family: system-ui, sans-serif;
+      "
+    >
+      <h1 style="color:#17458f;font-size:1.5rem;margin-bottom:1rem;">
+        Rotaract Club of Coimbatore Gaalaxy
+      </h1>
+      <p style="color:#333;max-width:480px;line-height:1.7;">
+        This website requires JavaScript to display correctly.
+        Please enable JavaScript in your browser settings and refresh the page.
+      </p>
+      <p style="margin-top:1.5rem;color:#555;">
+        You can also reach us at&nbsp;
+        <a href="mailto:gaalaxy.socials@gmail.com" style="color:#17458f;">gaalaxy.socials@gmail.com</a>
+        &nbsp;or call&nbsp;
+        <a href="tel:+918220004424" style="color:#17458f;">+91 82200 04424</a>.
+      </p>
+    </div>
+
+    <!-- ── React root ── -->
+    <div id="root"></div>
+
+  </body>
+</html>
