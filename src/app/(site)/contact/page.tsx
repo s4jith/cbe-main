@@ -4,7 +4,7 @@ import Footer from "@/components/Footer";
 import SplitHeadline from "@/components/SplitHeadline";
 import FormShell, { Field } from "@/components/FormShell";
 import Reveal from "@/components/Reveal";
-import { site, forms } from "@/content/site";
+import { getSiteSettings } from "@/lib/content";
 
 export const metadata: Metadata = {
   title: "Contact Us",
@@ -12,7 +12,8 @@ export const metadata: Metadata = {
     "Get in touch with Rotaract Coimbatore Gaalaxy for collaborations, membership inquiries, or project partnerships.",
 };
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const site = await getSiteSettings();
   return (
     <>
       <Header tone="light" />
@@ -56,7 +57,7 @@ export default function ContactPage() {
                 <p className="mb-6 text-[17px] font-medium leading-relaxed text-ink/60">
                   Questions, ideas, or just want to connect? We&apos;re a message away — let&apos;s keep the conversation and collaboration going.
                 </p>
-                <FormShell action={forms.contact} submitLabel="Send message">
+                <FormShell action={site.forms.contact} submitLabel="Send message">
                   <Field label="Name" name="name" required placeholder="Your name" />
                   <div className="grid grid-cols-2 gap-5 max-md:grid-cols-1">
                     <Field label="Phone" name="phone" type="tel" placeholder="+91" />
@@ -69,7 +70,7 @@ export default function ContactPage() {
           </div>
         </section>
       </main>
-      <Footer />
+      <Footer site={site} />
     </>
   );
 }

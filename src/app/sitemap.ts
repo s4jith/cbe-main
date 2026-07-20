@@ -1,7 +1,8 @@
 import type { MetadataRoute } from "next";
-import { site } from "@/content/site";
+import { getSiteSettings } from "@/lib/content";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const site = await getSiteSettings();
   return ["", "/about", "/team", "/projects", "/publications", "/contact"].map((path) => ({
     url: `${site.url}${path}`,
     changeFrequency: "monthly",

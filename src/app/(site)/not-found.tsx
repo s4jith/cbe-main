@@ -1,9 +1,10 @@
-import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { PillButton } from "@/components/Buttons";
+import { getSiteSettings } from "@/lib/content";
 
-export default function NotFound() {
+export default async function NotFound() {
+  const site = await getSiteSettings();
   return (
     <>
       <Header tone="light" />
@@ -19,7 +20,7 @@ export default function NotFound() {
           <PillButton href="/">Back to Home</PillButton>
         </div>
       </main>
-      <Footer />
+      <Footer site={site} />
     </>
   );
 }

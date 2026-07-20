@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { nav, site } from "@/content/site";
+import { nav } from "@/lib/nav";
 import { PillButton } from "@/components/Buttons";
 
 export default function Header({ tone = "light" }: { tone?: "light" | "dark" }) {
@@ -21,7 +21,7 @@ export default function Header({ tone = "light" }: { tone?: "light" | "dark" }) 
     <header className="absolute inset-x-0 top-0 z-30 pt-8 max-lg:pt-4">
       <div className="shell flex items-center gap-6">
         <Link href="/" className="flex items-center gap-3">
-          <Image src="/images/brand/club-logo.webp" alt={site.name} width={44} height={44} className="h-11 w-11 object-contain" />
+          <Image src="/images/brand/club-logo.webp" alt="Rotaract Club of Coimbatore Gaalaxy" width={44} height={44} className="h-11 w-11 object-contain" />
           <span className={`text-[17px] font-extrabold leading-tight ${tone === "light" ? "text-ink" : "text-white"}`}>
             gaalaxy<span className="text-starlight">✦</span>
           </span>

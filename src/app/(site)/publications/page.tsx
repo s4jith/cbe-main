@@ -5,7 +5,7 @@ import Footer from "@/components/Footer";
 import SplitHeadline from "@/components/SplitHeadline";
 import TiltCard from "@/components/TiltCard";
 import Reveal from "@/components/Reveal";
-import { newsletters, scrapbooks } from "@/content/publications";
+import { getPublications, getSiteSettings } from "@/lib/content";
 
 export const metadata: Metadata = {
   title: "Publications",
@@ -13,7 +13,13 @@ export const metadata: Metadata = {
     "The Gaalaxy Newsletter and annual scrapbooks — project highlights, events, and memorable moments in print.",
 };
 
-export default function PublicationsPage() {
+export default async function PublicationsPage() {
+  const [site, newsletters, scrapbooks] = await Promise.all([
+    getSiteSettings(),
+    getPublications("newsletter"),
+    getPublications("scrapbook"),
+  ]);
+
   return (
     <>
       <Header tone="light" />
@@ -38,7 +44,7 @@ export default function PublicationsPage() {
           <div className="shell">
             <p className="text-[17px] font-medium lowercase text-ink/40">gaalaxy newsletter — monthly</p>
             <SplitHeadline
-              lines={["Eleven editions,", "one voice."]}
+              lines={["Every edition,", "one voice."]}
               className="mt-3 max-w-xl text-[42px] font-extrabold leading-[1.1] text-ink max-md:text-[32px]"
             />
           </div>
@@ -62,7 +68,7 @@ export default function PublicationsPage() {
           <div className="shell">
             <p className="text-[17px] font-medium lowercase text-white/40">annual scrapbooks</p>
             <SplitHeadline
-              lines={["Five years,", "five chapters."]}
+              lines={["Year by year,", "chapter by chapter."]}
               className="mt-3 max-w-xl text-[42px] font-extrabold leading-[1.1] text-white max-md:text-[32px]"
             />
             <div className="mt-14 grid grid-cols-5 gap-6 max-lg:grid-cols-3 max-md:grid-cols-2">
@@ -81,7 +87,7 @@ export default function PublicationsPage() {
           </div>
         </section>
       </main>
-      <Footer />
+      <Footer site={site} />
     </>
   );
 }

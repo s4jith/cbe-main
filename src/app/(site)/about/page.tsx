@@ -8,7 +8,7 @@ import FourWayTest from "@/components/FourWayTest";
 import CTABanner from "@/components/CTABanner";
 import Reveal from "@/components/Reveal";
 import Marquee from "@/components/Marquee";
-import { site, prayer } from "@/content/site";
+import { getAboutContent, getSiteSettings } from "@/lib/content";
 
 export const metadata: Metadata = {
   title: "Our Story",
@@ -16,29 +16,9 @@ export const metadata: Metadata = {
     "Discover the 15-year journey, legacy, and evolution of Rotaract Coimbatore Gaalaxy — from charter to today.",
 };
 
-const storyImages = [
-  { src: "/images/story/01.webp", alt: "Rotaract Club of Coimbatore Gaalaxy — early club events" },
-  { src: "/images/story/02.webp", alt: "Club service and community outreach activities" },
-  { src: "/images/story/03.webp", alt: "Rotaractors at a project event" },
-  { src: "/images/story/04.webp", alt: "Fellowship and team activities" },
-  { src: "/images/story/05.webp", alt: "Installation and leadership ceremony" },
-];
+export default async function AboutPage() {
+  const [site, about] = await Promise.all([getSiteSettings(), getAboutContent()]);
 
-const timeline = [
-  { year: "2009", title: "The charter", body: "Born on 30 November 2009 under the mentorship of the Rotary Club of Coimbatore Gaalaxy and Charter President Rtr. Jagadeesan." },
-  { year: "2019", title: "VANCHI begins", body: "Our flagship tribal-upliftment initiative launches — two editions serving the Irula tribe across Sadivayal and Karamadai, 30+ beneficiaries per phase." },
-  { year: "2024", title: "Barriers break", body: "Coimbatore's first para-sports fest, PETTI KADAI entrepreneurship, and the club welcomes its first transgender member." },
-  { year: "2025", title: "IPCL goes national", body: "IPCL 2.0 brings 60+ para-athletes from 14 states and 1 UT to 22 Yards, Coimbatore." },
-  { year: "Today", title: "God Mode", body: "42 members, 5 district trainers, an annual budget of ₹10–15 lakhs, and a 500-project legacy that keeps compounding." },
-];
-
-const manifesto = [
-  { text: "A force that educates.", accent: "text-comet" },
-  { text: "A force that empowers.", accent: "text-starlight" },
-  { text: "A force that breaks barriers.", accent: "text-cranberry" },
-];
-
-export default function AboutPage() {
   return (
     <>
       <Header tone="light" />
@@ -57,7 +37,7 @@ export default function AboutPage() {
             />
           </div>
           <div className="mt-24 max-md:mt-12">
-            <PhotoFan images={storyImages} />
+            <PhotoFan images={about.storyImages} />
           </div>
         </section>
 
@@ -74,21 +54,11 @@ export default function AboutPage() {
               </div>
             </div>
             <div className="flex-1 space-y-6 text-[17px] font-medium leading-relaxed text-ink/70">
-              <Reveal y={30} scale={false}>
-                <p>
-                  The Rotaract Club of Coimbatore Gaalaxy was born under the passionate mentorship of the Rotary Club of Coimbatore Gaalaxy and the visionary leadership of Charter President Rtr. Jagadeesan. Since its founding, the club has stood as a dynamic platform for young individuals to cultivate leadership, foster personal growth, and contribute meaningfully to society — true to the global spirit of Rotaract.
-                </p>
-              </Reveal>
-              <Reveal y={30} scale={false} delay={0.05}>
-                <p>
-                  Over the years, the club has evolved into a powerhouse of innovation and service — a strong membership base of dedicated Rotaractors, including district trainers, upholding the Rotaract motto of fellowship through service. From flagship ventures like VANCHI, Abled Covai Trophy, Gaalaxy Unavagam, and Petti Kadai, to inclusive platforms like the Indian Para Cricket League and Aasan, our projects speak volumes about our commitment to inclusivity, empowerment, and community welfare.
-                </p>
-              </Reveal>
-              <Reveal y={30} scale={false} delay={0.1}>
-                <p>
-                  Operating on an annual budget of ₹10–15 lakhs, we have garnered the support of CSR collaborators, stakeholders, and local bodies — making every rupee count. With over 15 years of unwavering legacy, the Rotaract Club of Coimbatore Gaalaxy has grown into a beacon of youth-driven change.
-                </p>
-              </Reveal>
+              {about.storyParagraphs.map((text, i) => (
+                <Reveal key={i} y={30} scale={false} delay={i * 0.05}>
+                  <p>{text}</p>
+                </Reveal>
+              ))}
               <Reveal y={30} scale={false} delay={0.15}>
                 <blockquote className="border-l-4 border-starlight pl-6 text-[24px] font-extrabold leading-snug text-ink">
                   But we are not just a club — we are a force.
@@ -101,7 +71,7 @@ export default function AboutPage() {
         {/* Manifesto */}
         <section className="starfield bg-space py-24">
           <div className="shell space-y-6">
-            {manifesto.map((m, i) => (
+            {about.manifesto.map((m, i) => (
               <Reveal key={m.text} y={50} scale={false} delay={i * 0.12}>
                 <p className={`text-[56px] font-extrabold leading-[1.1] max-lg:text-[40px] max-md:text-[28px] ${m.accent}`}>{m.text}</p>
               </Reveal>
@@ -122,7 +92,7 @@ export default function AboutPage() {
               className="max-w-xl text-[42px] font-extrabold leading-[1.1] text-ink max-md:text-[32px]"
             />
             <ol className="mt-14 space-y-0">
-              {timeline.map((t, i) => (
+              {about.timeline.map((t, i) => (
                 <Reveal key={t.year} y={40} scale={false} delay={i * 0.05}>
                   <li className="grid grid-cols-[140px_1fr] gap-8 border-t border-ink/10 py-8 max-md:grid-cols-1 max-md:gap-2">
                     <span className="text-[42px] font-extrabold leading-none text-ink/20">{t.year}</span>
@@ -144,7 +114,7 @@ export default function AboutPage() {
             <p className="mt-4 text-[17px] font-medium lowercase text-white/40">the rotaract prayer</p>
             <Reveal y={30} scale={false}>
               <p className="mx-auto mt-8 max-w-3xl text-[24px] font-bold leading-relaxed text-white/90 max-md:text-[18px]">
-                {prayer}
+                {site.prayer}
               </p>
             </Reveal>
           </div>
@@ -173,7 +143,7 @@ export default function AboutPage() {
 
         <CTABanner />
       </main>
-      <Footer />
+      <Footer site={site} />
     </>
   );
 }

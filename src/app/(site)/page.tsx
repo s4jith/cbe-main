@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import HeroShrink from "@/components/HeroShrink";
@@ -14,19 +13,25 @@ import CTABanner from "@/components/CTABanner";
 import Marquee from "@/components/Marquee";
 import Reveal from "@/components/Reveal";
 import { ArrowButton } from "@/components/Buttons";
-import { site } from "@/content/site";
-import { avenues, projects, flagship } from "@/content/projects";
-import { board, voices } from "@/content/members";
+import {
+  getFlagship,
+  getHomeContent,
+  getMembers,
+  getProjects,
+  getSiteSettings,
+  getVoices,
+} from "@/lib/content";
 
-const avenueImages: Record<string, string> = {
-  club: "/images/projects/club/06.jpg",
-  community: "/images/projects/community/03.jpg",
-  professional: "/images/projects/professional/05.jpg",
-  international: "/images/projects/international/03.jpg",
-  district: "/images/projects/district/05.jpg",
-};
+export default async function Home() {
+  const [site, home, projects, flagship, board, voices] = await Promise.all([
+    getSiteSettings(),
+    getHomeContent(),
+    getProjects(),
+    getFlagship(),
+    getMembers("board"),
+    getVoices(),
+  ]);
 
-export default function Home() {
   return (
     <>
       <Header tone="light" />
@@ -51,7 +56,7 @@ export default function Home() {
             </HeroShrink>
           </div>
           <div className="mt-16">
-            <HeroStrip />
+            <HeroStrip items={home.heroStrip} />
           </div>
         </section>
 
@@ -63,14 +68,14 @@ export default function Home() {
               className="max-w-xl text-[42px] font-extrabold leading-[1.1] text-white max-md:text-[32px]"
             />
             <div className="mt-12 space-y-8">
-              {avenues.map((a, i) => (
+              {home.avenues.map((a, i) => (
                 <AvenueCard
                   key={a.key}
                   title={a.key}
                   blurb={a.blurb}
                   count={projects.filter((p) => p.avenue === a.key).length}
                   accent={a.accent}
-                  image={avenueImages[a.slug]}
+                  image={a.image}
                   href={`/projects?avenue=${a.slug}`}
                   index={i}
                 />
@@ -80,7 +85,7 @@ export default function Home() {
         </section>
 
         {/* Stats */}
-        <StatsOdometer />
+        <StatsOdometer stats={home.stats} />
 
         {/* Flagship spotlight */}
         <section className="starfield bg-space py-24 max-md:py-16">
@@ -115,7 +120,7 @@ export default function Home() {
             />
             <div className="mt-12 grid grid-cols-3 gap-8 max-lg:grid-cols-1">
               {voices.map((v, i) => (
-                <PostCard key={v.name} quote={v.quote} name={v.name} role={v.role} image={v.image} drift={[-40, 0, -18][i]} />
+                <PostCard key={v.name} quote={v.quote} name={v.name} role={v.role} image={v.image} drift={[-40, 0, -18][i % 3]} />
               ))}
             </div>
           </div>
@@ -157,7 +162,7 @@ export default function Home() {
 
         <CTABanner />
       </main>
-      <Footer />
+      <Footer site={site} />
     </>
   );
 }

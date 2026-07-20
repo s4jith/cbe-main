@@ -3,7 +3,7 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
 import PhotoCard from "@/components/PhotoCard";
-import type { Member } from "@/content/members";
+import type { Member } from "@/lib/types";
 
 /** Scroll-jacked horizontal slider of member portrait cards. */
 export default function TeamSlider({ members }: { members: Member[] }) {

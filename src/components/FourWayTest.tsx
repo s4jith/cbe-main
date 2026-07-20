@@ -2,9 +2,15 @@
 
 import { useRef } from "react";
 import { motion, useInView, useReducedMotion } from "framer-motion";
-import { fourWayTest } from "@/content/site";
-
 const EASE = [0.23, 1, 0.32, 1] as const;
+
+// The Four-Way Test is official Rotary text — fixed, not CMS-managed.
+const fourWayTest = [
+  { key: "TRUTH", question: "Is it the TRUTH?" },
+  { key: "FAIR", question: "Is it FAIR to all concerned?" },
+  { key: "GOODWILL", question: "Will it build GOODWILL and BETTER FRIENDSHIPS?" },
+  { key: "BENEFICIAL", question: "Will it be BENEFICIAL to all concerned?" },
+] as const;
 
 /** The Four-Way Test as sequential giant lines; key word gets an animated starlight underline. */
 export default function FourWayTest() {

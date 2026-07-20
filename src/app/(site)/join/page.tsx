@@ -4,7 +4,7 @@ import Footer from "@/components/Footer";
 import SplitHeadline from "@/components/SplitHeadline";
 import FormShell, { Field } from "@/components/FormShell";
 import Reveal from "@/components/Reveal";
-import { site, forms } from "@/content/site";
+import { getSiteSettings } from "@/lib/content";
 
 export const metadata: Metadata = {
   title: "Join Us",
@@ -13,7 +13,8 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function JoinPage() {
+export default async function JoinPage() {
+  const site = await getSiteSettings();
   return (
     <>
       <Header tone="light" />
@@ -42,7 +43,7 @@ export default function JoinPage() {
           <div className="shell">
             <Reveal y={40}>
               <div className="mx-auto max-w-2xl rounded-2xl bg-white p-10 shadow-banner max-md:p-6">
-                <FormShell action={forms.join} submitLabel="Submit application">
+                <FormShell action={site.forms.join} submitLabel="Submit application">
                   <Field label="Full name" name="fullName" required placeholder="Your name" />
                   <div className="grid grid-cols-2 gap-5 max-md:grid-cols-1">
                     <Field label="Date of birth / Age" name="dob" required placeholder="DD/MM/YYYY" />
@@ -80,7 +81,7 @@ export default function JoinPage() {
           </div>
         </section>
       </main>
-      <Footer />
+      <Footer site={site} />
     </>
   );
 }

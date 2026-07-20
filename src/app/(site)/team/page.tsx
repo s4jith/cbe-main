@@ -6,7 +6,7 @@ import SplitHeadline from "@/components/SplitHeadline";
 import PostCard from "@/components/PostCard";
 import CTABanner from "@/components/CTABanner";
 import Reveal from "@/components/Reveal";
-import { board, generalMembers, voices } from "@/content/members";
+import { getMembers, getSiteSettings, getVoices } from "@/lib/content";
 
 export const metadata: Metadata = {
   title: "Stars of Gaalaxy",
@@ -14,7 +14,13 @@ export const metadata: Metadata = {
     "Meet the Stars of Gaalaxy — the dedicated board members and Rotaractors of Rotaract Club of Coimbatore Gaalaxy.",
 };
 
-export default function TeamPage() {
+export default async function TeamPage() {
+  const [site, board, generalMembers, voices] = await Promise.all([
+    getSiteSettings(),
+    getMembers("board"),
+    getMembers("general"),
+    getVoices(),
+  ]);
   const leadership = board.slice(0, 8);
   const rest = board.slice(8);
 
@@ -98,7 +104,7 @@ export default function TeamPage() {
               className="text-[42px] font-extrabold leading-[1.1] text-ink max-md:text-[32px]"
             />
             <p className="mt-4 max-w-lg text-[17px] font-medium text-ink/60">
-              Eighteen more stars — the general members whose energy powers every project.
+              More stars — the general members whose energy powers every project.
             </p>
             <div className="mt-12 flex flex-wrap gap-x-8 gap-y-10 max-md:gap-x-4">
               {generalMembers.map((m, i) => (
@@ -124,7 +130,7 @@ export default function TeamPage() {
             />
             <div className="mt-12 grid grid-cols-3 gap-8 max-lg:grid-cols-1">
               {voices.map((v, i) => (
-                <PostCard key={v.name} quote={v.quote} name={v.name} role={v.role} image={v.image} drift={[-40, 0, -18][i]} />
+                <PostCard key={v.name} quote={v.quote} name={v.name} role={v.role} image={v.image} drift={[-40, 0, -18][i % 3]} />
               ))}
             </div>
           </div>
@@ -132,7 +138,7 @@ export default function TeamPage() {
 
         <CTABanner />
       </main>
-      <Footer />
+      <Footer site={site} />
     </>
   );
 }

@@ -2,7 +2,7 @@
 
 import { useRef, useEffect, useState } from "react";
 import { motion, useScroll, useTransform, useMotionValueEvent, useInView, useReducedMotion, animate } from "framer-motion";
-import { stats } from "@/content/site";
+import type { Stat } from "@/lib/types";
 import SplitHeadline from "@/components/SplitHeadline";
 import { ArrowButton } from "@/components/Buttons";
 
@@ -25,7 +25,7 @@ function CountUp({ value, suffix }: { value: number; suffix: string }) {
 const tiles = ["bg-comet text-comet-ink", "bg-nebula text-nebula-ink", "bg-starlight text-starlight-ink", "bg-cranberry text-cranberry-ink", "bg-comet text-comet-ink"];
 
 /** Pinned odometer: numerals roll through a masked band, text panel swaps in sync. Mobile → tile grid with CountUp. */
-export default function StatsOdometer() {
+export default function StatsOdometer({ stats }: { stats: Stat[] }) {
   const ref = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
   const [index, setIndex] = useState(0);

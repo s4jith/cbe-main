@@ -4,7 +4,7 @@ import Footer from "@/components/Footer";
 import SplitHeadline from "@/components/SplitHeadline";
 import FormShell, { Field } from "@/components/FormShell";
 import Reveal from "@/components/Reveal";
-import { site, forms } from "@/content/site";
+import { getSiteSettings } from "@/lib/content";
 
 export const metadata: Metadata = {
   title: "Donate Blood",
@@ -13,7 +13,8 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function BloodDonorPage() {
+export default async function BloodDonorPage() {
+  const site = await getSiteSettings();
   return (
     <>
       <Header tone="light" />
@@ -39,7 +40,7 @@ export default function BloodDonorPage() {
           <div className="shell">
             <Reveal y={40}>
               <div className="mx-auto max-w-2xl rounded-2xl bg-white p-10 shadow-banner max-md:p-6">
-                <FormShell action={forms.bloodDonor} submitLabel="Register as a donor" accent="cranberry">
+                <FormShell action={site.forms.bloodDonor} submitLabel="Register as a donor" accent="cranberry">
                   <Field label="Full name" name="fullName" required placeholder="Your name" />
                   <div className="grid grid-cols-2 gap-5 max-md:grid-cols-1">
                     <Field label="Email" name="email" type="email" required placeholder="you@example.com" />
@@ -84,7 +85,7 @@ export default function BloodDonorPage() {
           </div>
         </section>
       </main>
-      <Footer />
+      <Footer site={site} />
     </>
   );
 }

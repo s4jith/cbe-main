@@ -4,7 +4,7 @@ import Footer from "@/components/Footer";
 import SplitHeadline from "@/components/SplitHeadline";
 import ProjectsGrid from "@/components/ProjectsGrid";
 import CTABanner from "@/components/CTABanner";
-import { projects } from "@/content/projects";
+import { getHomeContent, getProjects, getSiteSettings } from "@/lib/content";
 
 export const metadata: Metadata = {
   title: "Projects",
@@ -18,6 +18,11 @@ export default async function ProjectsPage({
   searchParams: Promise<{ avenue?: string }>;
 }) {
   const { avenue } = await searchParams;
+  const [site, projects, home] = await Promise.all([
+    getSiteSettings(),
+    getProjects(),
+    getHomeContent(),
+  ]);
   return (
     <>
       <Header tone="light" />
@@ -42,13 +47,13 @@ export default async function ProjectsPage({
 
         <section className="pb-28">
           <div className="shell">
-            <ProjectsGrid initialAvenue={avenue} />
+            <ProjectsGrid projects={projects} avenues={home.avenues} initialAvenue={avenue} />
           </div>
         </section>
 
         <CTABanner />
       </main>
-      <Footer />
+      <Footer site={site} />
     </>
   );
 }

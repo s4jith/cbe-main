@@ -3,20 +3,8 @@
 import { useRef } from "react";
 import Link from "next/link";
 import { motion, useScroll, useTransform, useSpring, useMotionValue } from "framer-motion";
-import { site, nav } from "@/content/site";
-
-const columns = [
-  { title: "pages", links: nav.map((n) => ({ label: n.label, href: n.href })) },
-  {
-    title: "get involved",
-    links: [
-      { label: "Become a Member", href: "/join" },
-      { label: "Blood Donor Registry", href: "/blood-donor" },
-      { label: "Say Hello", href: "/contact" },
-    ],
-  },
-  { title: "socials", links: site.socials.map((s) => ({ label: s.label, href: s.href })) },
-] as const;
+import { nav } from "@/lib/nav";
+import type { SiteInfo } from "@/lib/types";
 
 function Wordmark() {
   const ref = useRef<SVGSVGElement>(null);
@@ -53,10 +41,23 @@ function Wordmark() {
   );
 }
 
-export default function Footer() {
+export default function Footer({ site }: { site: SiteInfo }) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: wrapRef, offset: ["start end", "end end"] });
   const y = useTransform(scrollYProgress, [0, 1], ["-45%", "0%"]);
+
+  const columns = [
+    { title: "pages", links: nav.map((n) => ({ label: n.label, href: n.href })) },
+    {
+      title: "get involved",
+      links: [
+        { label: "Become a Member", href: "/join" },
+        { label: "Blood Donor Registry", href: "/blood-donor" },
+        { label: "Say Hello", href: "/contact" },
+      ],
+    },
+    { title: "socials", links: site.socials.map((s) => ({ label: s.label, href: s.href })) },
+  ];
 
   return (
     <footer ref={wrapRef} className="relative overflow-hidden bg-space starfield">

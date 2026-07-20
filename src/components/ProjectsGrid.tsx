@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
-import { projects, avenues, type Avenue } from "@/content/projects";
+import type { Avenue, AvenueInfo, Project } from "@/lib/types";
 
 const dotColor: Record<string, string> = {
   starlight: "bg-starlight",
@@ -13,12 +13,20 @@ const dotColor: Record<string, string> = {
 };
 
 /** Filterable project index with FLIP layout animation. */
-export default function ProjectsGrid({ initialAvenue }: { initialAvenue?: string }) {
+export default function ProjectsGrid({
+  projects,
+  avenues,
+  initialAvenue,
+}: {
+  projects: Project[];
+  avenues: AvenueInfo[];
+  initialAvenue?: string;
+}) {
   const initial = avenues.find((a) => a.slug === initialAvenue)?.key ?? "All";
   const [filter, setFilter] = useState<Avenue | "All">(initial);
   const list = useMemo(
     () => (filter === "All" ? projects : projects.filter((p) => p.avenue === filter)),
-    [filter],
+    [filter, projects],
   );
 
   const pills: { label: string; value: Avenue | "All"; accent?: string; count: number }[] = [
