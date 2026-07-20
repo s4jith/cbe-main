@@ -7,8 +7,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "pnnext lint",
+    "lint": "next lint",
     "typecheck": "tsc --noEmit",
+    "postinstall": "node scripts/ensure-typescript-shim.mjs",
     "seed": "payload run scripts/seed.ts",
     "generate:types": "payload generate:types",
     "generate:importmap": "payload generate:importmap"
