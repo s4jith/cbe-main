@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
+import { m, useScroll, useTransform, useReducedMotion } from "framer-motion";
 import PhotoCard from "@/components/PhotoCard";
 import type { HeroCard } from "@/lib/types";
 
@@ -9,7 +9,13 @@ import type { HeroCard } from "@/lib/types";
 export default function HeroStrip({ items }: { items: HeroCard[] }) {
   const ref = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
+  // The reduced-motion branch below never renders the ref'd element, so handing
+  // useScroll that ref made it throw "Target ref is defined but not hydrated"
+  // once useReducedMotion resolved. The progress value is unused in that branch.
+  const { scrollYProgress } = useScroll({
+    target: reduced ? undefined : ref,
+    offset: ["start start", "end end"],
+  });
   const x = useTransform(scrollYProgress, [0, 1], ["0%", "-52%"]);
 
   if (reduced) {
@@ -25,7 +31,7 @@ export default function HeroStrip({ items }: { items: HeroCard[] }) {
   return (
     <div ref={ref} className="relative h-[220vh]">
       <div className="sticky top-0 flex h-screen items-center overflow-hidden">
-        <motion.div style={{ x }} className="shell bleed-right flex gap-6 will-change-transform">
+        <m.div style={{ x }} className="shell bleed-right flex gap-6 will-change-transform">
           {items.map((c, i) => (
             <PhotoCard
               key={c.title}
@@ -36,7 +42,7 @@ export default function HeroStrip({ items }: { items: HeroCard[] }) {
               className="h-[440px] w-[312px] shrink-0 max-md:h-[360px] max-md:w-[260px]"
             />
           ))}
-        </motion.div>
+        </m.div>
       </div>
     </div>
   );

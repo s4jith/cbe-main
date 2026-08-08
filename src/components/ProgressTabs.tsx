@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { AnimatePresence, motion, useInView } from "framer-motion";
+import { AnimatePresence, m, useInView } from "framer-motion";
 
 export type Tab = {
   label: string;
@@ -50,7 +50,7 @@ export default function ProgressTabs({ tabs, dark = true }: { tabs: Tab[]; dark?
             } ${i === active ? "" : "opacity-70 hover:opacity-100"}`}
           >
             {i === active && (
-              <motion.span
+              <m.span
                 key={cycleKey}
                 className={`absolute inset-0 ${dark ? "bg-white/10" : "bg-ink/10"}`}
                 initial={{ clipPath: "inset(0 100% 0 0)" }}
@@ -65,7 +65,7 @@ export default function ProgressTabs({ tabs, dark = true }: { tabs: Tab[]; dark?
 
       <div className="relative min-h-[420px] flex-1">
         <AnimatePresence mode="wait">
-          <motion.div
+          <m.div
             key={active}
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
@@ -84,7 +84,7 @@ export default function ProgressTabs({ tabs, dark = true }: { tabs: Tab[]; dark?
             )}
             <h3 className={`text-[28px] font-extrabold ${textMain}`}>{tabs[active].title}</h3>
             <p className={`mt-4 max-w-2xl text-[17px] font-medium leading-relaxed ${textDim}`}>{tabs[active].body}</p>
-          </motion.div>
+          </m.div>
         </AnimatePresence>
       </div>
     </div>

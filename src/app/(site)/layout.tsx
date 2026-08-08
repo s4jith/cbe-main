@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import { Instrument_Serif, Inter } from "next/font/google";
 import LenisProvider from "@/components/LenisProvider";
+import MotionProvider from "@/components/MotionProvider";
 import Preloader from "@/components/Preloader";
 import { getSiteSettings } from "@/lib/content";
 import "../globals.css";
@@ -9,14 +10,25 @@ import "../globals.css";
 // immediately on every content change.
 export const revalidate = 300;
 
-const jakarta = Plus_Jakarta_Sans({
+// The type system is a pair, not a switcher: an editorial serif carries display
+// moments, Inter carries everything a reader actually has to read. Both are
+// variable fonts, so each ships one file covering its whole weight axis.
+const display = Instrument_Serif({
   subsets: ["latin"],
-  variable: "--font-jakarta",
-  weight: ["200", "300", "400", "500", "600", "700", "800"],
+  weight: "400",
+  style: ["normal", "italic"],
+  variable: "--font-display",
+  display: "swap",
+});
+
+const sans = Inter({
+  subsets: ["latin"],
+  variable: "--font-sans-var",
+  display: "swap",
 });
 
 export async function generateMetadata(): Promise<Metadata> {
-  const site = await getSiteSettings();
+  const site = getSiteSettings();
   return {
     metadataBase: new URL(site.url),
     title: {
@@ -27,7 +39,7 @@ export async function generateMetadata(): Promise<Metadata> {
     openGraph: {
       title: site.name,
       description: site.description,
-      images: ["/images/brand/og-banner.jpg"],
+      images: [site.shareImage],
       type: "website",
     },
   };
@@ -36,9 +48,11 @@ export async function generateMetadata(): Promise<Metadata> {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={`${jakarta.variable} font-sans antialiased`}>
+      <body className={`${display.variable} ${sans.variable} font-sans antialiased`}>
         <Preloader />
-        <LenisProvider>{children}</LenisProvider>
+        <LenisProvider>
+          <MotionProvider>{children}</MotionProvider>
+        </LenisProvider>
       </body>
     </html>
   );

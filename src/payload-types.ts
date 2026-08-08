@@ -67,13 +67,12 @@ export interface Config {
   };
   blocks: {};
   collections: {
-    users: User;
-    media: Media;
-    members: Member;
     projects: Project;
     'flagship-projects': FlagshipProject;
-    publications: Publication;
-    voices: Voice;
+    members: Member;
+    'legacy-photos': LegacyPhoto;
+    media: Media;
+    users: User;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -81,32 +80,23 @@ export interface Config {
   };
   collectionsJoins: {};
   collectionsSelect: {
-    users: UsersSelect<false> | UsersSelect<true>;
-    media: MediaSelect<false> | MediaSelect<true>;
-    members: MembersSelect<false> | MembersSelect<true>;
     projects: ProjectsSelect<false> | ProjectsSelect<true>;
     'flagship-projects': FlagshipProjectsSelect<false> | FlagshipProjectsSelect<true>;
-    publications: PublicationsSelect<false> | PublicationsSelect<true>;
-    voices: VoicesSelect<false> | VoicesSelect<true>;
+    members: MembersSelect<false> | MembersSelect<true>;
+    'legacy-photos': LegacyPhotosSelect<false> | LegacyPhotosSelect<true>;
+    media: MediaSelect<false> | MediaSelect<true>;
+    users: UsersSelect<false> | UsersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
   };
   db: {
-    defaultIDType: number;
+    defaultIDType: string;
   };
   fallbackLocale: null;
-  globals: {
-    'site-settings': SiteSetting;
-    'home-page': HomePage;
-    'about-page': AboutPage;
-  };
-  globalsSelect: {
-    'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
-    'home-page': HomePageSelect<false> | HomePageSelect<true>;
-    'about-page': AboutPageSelect<false> | AboutPageSelect<true>;
-  };
+  globals: {};
+  globalsSelect: {};
   locale: null;
   widgets: {
     collections: CollectionsWidget;
@@ -136,11 +126,135 @@ export interface UserAuthOperations {
   };
 }
 /**
+ * Every project card on the projects page and the counts on the home page.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "projects".
+ */
+export interface Project {
+  id: string;
+  title: string;
+  avenue: 'Club Service' | 'Community Service' | 'Professional Service' | 'International Service' | 'District Priority';
+  description: string;
+  image: string | Media;
+  /**
+   * Month and year this happened. Powers the year/month filters on the projects page — club years run July to June, so a project dated any month from July through December belongs to that calendar year's edition, and January through June belongs to the following one.
+   */
+  date: string;
+  /**
+   * Lower numbers appear first within the avenue.
+   */
+  order: number;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Every photo and PDF used on the site. Upload here, then pick the file from any page.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media".
+ */
+export interface Media {
+  id: string;
+  /**
+   * What the image shows. Read aloud by screen readers and shown if the image fails to load.
+   */
+  alt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
+ * The spotlight tabs in the “Built to break barriers” section of the home page.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "flagship-projects".
+ */
+export interface FlagshipProject {
+  id: string;
+  title: string;
+  /**
+   * Short label, e.g. "Flagship since 2019".
+   */
+  tag: string;
+  description: string;
+  /**
+   * Headline stat, e.g. "60+ players · 14 states".
+   */
+  stat: string;
+  image: string | Media;
+  /**
+   * Lower numbers appear first.
+   */
+  order: number;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * The team shown on the Team page and the home page teaser. Add, edit or delete a member here — Priority controls the order they appear in.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "members".
+ */
+export interface Member {
+  id: string;
+  name: string;
+  /**
+   * Job title / position — e.g. President, Secretary, Member.
+   */
+  role: string;
+  /**
+   * Board members show name + designation on the Team page. General members show in the name-only circle grid further down.
+   */
+  memberType: 'board' | 'general';
+  photo: string | Media;
+  /**
+   * Display order on the website — lower numbers appear first (0, 1, 2 …).
+   */
+  order: number;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * The archive gallery on the Legacy page — hosted on Cloudinary.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "legacy-photos".
+ */
+export interface LegacyPhoto {
+  id: string;
+  /**
+   * Lower numbers appear first.
+   */
+  order: number;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
+ * People who can sign in and edit the website.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
 export interface User {
-  id: number;
+  id: string;
   name: string;
   role: 'admin' | 'editor';
   updatedAt: string;
@@ -164,130 +278,10 @@ export interface User {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "media".
- */
-export interface Media {
-  id: number;
-  alt?: string | null;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "members".
- */
-export interface Member {
-  id: number;
-  name: string;
-  role: string;
-  memberType: 'board' | 'general';
-  photo: number | Media;
-  /**
-   * Lower numbers appear first.
-   */
-  order: number;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "projects".
- */
-export interface Project {
-  id: number;
-  title: string;
-  avenue: 'Club Service' | 'Community Service' | 'Professional Service' | 'International Service' | 'District Priority';
-  description: string;
-  image: number | Media;
-  /**
-   * Lower numbers appear first within the avenue.
-   */
-  order: number;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "flagship-projects".
- */
-export interface FlagshipProject {
-  id: number;
-  title: string;
-  /**
-   * Short label, e.g. "Flagship since 2019".
-   */
-  tag: string;
-  description: string;
-  /**
-   * Headline stat, e.g. "60+ players · 14 states".
-   */
-  stat: string;
-  image: number | Media;
-  /**
-   * Lower numbers appear first.
-   */
-  order: number;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "publications".
- */
-export interface Publication {
-  id: number;
-  title: string;
-  type: 'newsletter' | 'scrapbook';
-  cover: number | Media;
-  /**
-   * Upload the PDF here, or paste an external link below.
-   */
-  pdfFile?: (number | null) | Media;
-  /**
-   * External PDF link — used when no PDF file is uploaded.
-   */
-  pdfUrl?: string | null;
-  /**
-   * Lower numbers appear first.
-   */
-  order: number;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * Member testimonials shown on the home and team pages.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "voices".
- */
-export interface Voice {
-  id: number;
-  name: string;
-  role: string;
-  quote: string;
-  image: number | Media;
-  /**
-   * Lower numbers appear first.
-   */
-  order: number;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
-  id: number;
+  id: string;
   key: string;
   data:
     | {
@@ -304,40 +298,36 @@ export interface PayloadKv {
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
-  id: number;
+  id: string;
   document?:
     | ({
-        relationTo: 'users';
-        value: number | User;
-      } | null)
-    | ({
-        relationTo: 'media';
-        value: number | Media;
-      } | null)
-    | ({
-        relationTo: 'members';
-        value: number | Member;
-      } | null)
-    | ({
         relationTo: 'projects';
-        value: number | Project;
+        value: string | Project;
       } | null)
     | ({
         relationTo: 'flagship-projects';
-        value: number | FlagshipProject;
+        value: string | FlagshipProject;
       } | null)
     | ({
-        relationTo: 'publications';
-        value: number | Publication;
+        relationTo: 'members';
+        value: string | Member;
       } | null)
     | ({
-        relationTo: 'voices';
-        value: number | Voice;
+        relationTo: 'legacy-photos';
+        value: string | LegacyPhoto;
+      } | null)
+    | ({
+        relationTo: 'media';
+        value: string | Media;
+      } | null)
+    | ({
+        relationTo: 'users';
+        value: string | User;
       } | null);
   globalSlug?: string | null;
   user: {
     relationTo: 'users';
-    value: number | User;
+    value: string | User;
   };
   updatedAt: string;
   createdAt: string;
@@ -347,10 +337,10 @@ export interface PayloadLockedDocument {
  * via the `definition` "payload-preferences".
  */
 export interface PayloadPreference {
-  id: number;
+  id: string;
   user: {
     relationTo: 'users';
-    value: number | User;
+    value: string | User;
   };
   key?: string | null;
   value?:
@@ -370,11 +360,88 @@ export interface PayloadPreference {
  * via the `definition` "payload-migrations".
  */
 export interface PayloadMigration {
-  id: number;
+  id: string;
   name?: string | null;
   batch?: number | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "projects_select".
+ */
+export interface ProjectsSelect<T extends boolean = true> {
+  title?: T;
+  avenue?: T;
+  description?: T;
+  image?: T;
+  date?: T;
+  order?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "flagship-projects_select".
+ */
+export interface FlagshipProjectsSelect<T extends boolean = true> {
+  title?: T;
+  tag?: T;
+  description?: T;
+  stat?: T;
+  image?: T;
+  order?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "members_select".
+ */
+export interface MembersSelect<T extends boolean = true> {
+  name?: T;
+  role?: T;
+  memberType?: T;
+  photo?: T;
+  order?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "legacy-photos_select".
+ */
+export interface LegacyPhotosSelect<T extends boolean = true> {
+  order?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media_select".
+ */
+export interface MediaSelect<T extends boolean = true> {
+  alt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -399,91 +466,6 @@ export interface UsersSelect<T extends boolean = true> {
         createdAt?: T;
         expiresAt?: T;
       };
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "media_select".
- */
-export interface MediaSelect<T extends boolean = true> {
-  alt?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  url?: T;
-  thumbnailURL?: T;
-  filename?: T;
-  mimeType?: T;
-  filesize?: T;
-  width?: T;
-  height?: T;
-  focalX?: T;
-  focalY?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "members_select".
- */
-export interface MembersSelect<T extends boolean = true> {
-  name?: T;
-  role?: T;
-  memberType?: T;
-  photo?: T;
-  order?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "projects_select".
- */
-export interface ProjectsSelect<T extends boolean = true> {
-  title?: T;
-  avenue?: T;
-  description?: T;
-  image?: T;
-  order?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "flagship-projects_select".
- */
-export interface FlagshipProjectsSelect<T extends boolean = true> {
-  title?: T;
-  tag?: T;
-  description?: T;
-  stat?: T;
-  image?: T;
-  order?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "publications_select".
- */
-export interface PublicationsSelect<T extends boolean = true> {
-  title?: T;
-  type?: T;
-  cover?: T;
-  pdfFile?: T;
-  pdfUrl?: T;
-  order?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "voices_select".
- */
-export interface VoicesSelect<T extends boolean = true> {
-  name?: T;
-  role?: T;
-  quote?: T;
-  image?: T;
-  order?: T;
-  updatedAt?: T;
-  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -524,258 +506,6 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "site-settings".
- */
-export interface SiteSetting {
-  id: number;
-  name: string;
-  shortName: string;
-  parent: string;
-  clubId: string;
-  group: string;
-  district: string;
-  chartered: string;
-  charterPresident: string;
-  tagline: string;
-  /**
-   * Used for SEO metadata.
-   */
-  description: string;
-  /**
-   * Canonical site URL, no trailing slash.
-   */
-  url: string;
-  phone: string;
-  email: string;
-  socials?:
-    | {
-        label: string;
-        href: string;
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * Google Apps Script endpoints receiving form submissions.
-   */
-  forms: {
-    contact: string;
-    join: string;
-    bloodDonor: string;
-  };
-  prayer: string;
-  updatedAt?: string | null;
-  createdAt?: string | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "home-page".
- */
-export interface HomePage {
-  id: number;
-  /**
-   * Photo cards in the scrolling strip under the home hero.
-   */
-  heroStrip?:
-    | {
-        title: string;
-        stat: string;
-        image: number | Media;
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * The five avenues of service shown on the home and projects pages.
-   */
-  avenues?:
-    | {
-        avenue:
-          'Club Service' | 'Community Service' | 'Professional Service' | 'International Service' | 'District Priority';
-        /**
-         * URL filter key, e.g. club, community, professional, international, district.
-         */
-        slug: string;
-        accent: 'starlight' | 'comet' | 'nebula' | 'cranberry';
-        blurb: string;
-        image: number | Media;
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * "Numbers that carry weight" section.
-   */
-  stats?:
-    | {
-        value: number;
-        suffix?: string | null;
-        label: string;
-        body: string;
-        id?: string | null;
-      }[]
-    | null;
-  updatedAt?: string | null;
-  createdAt?: string | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "about-page".
- */
-export interface AboutPage {
-  id: number;
-  /**
-   * Photo fan at the top of the about page.
-   */
-  storyImages?:
-    | {
-        image: number | Media;
-        alt: string;
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * The "our story" editorial paragraphs.
-   */
-  storyParagraphs?:
-    | {
-        text: string;
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * "A force that…" statement lines.
-   */
-  manifesto?:
-    | {
-        text: string;
-        accent: 'text-comet' | 'text-starlight' | 'text-cranberry';
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * "The journey so far" milestones.
-   */
-  timeline?:
-    | {
-        year: string;
-        title: string;
-        body: string;
-        id?: string | null;
-      }[]
-    | null;
-  updatedAt?: string | null;
-  createdAt?: string | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "site-settings_select".
- */
-export interface SiteSettingsSelect<T extends boolean = true> {
-  name?: T;
-  shortName?: T;
-  parent?: T;
-  clubId?: T;
-  group?: T;
-  district?: T;
-  chartered?: T;
-  charterPresident?: T;
-  tagline?: T;
-  description?: T;
-  url?: T;
-  phone?: T;
-  email?: T;
-  socials?:
-    | T
-    | {
-        label?: T;
-        href?: T;
-        id?: T;
-      };
-  forms?:
-    | T
-    | {
-        contact?: T;
-        join?: T;
-        bloodDonor?: T;
-      };
-  prayer?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  globalType?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "home-page_select".
- */
-export interface HomePageSelect<T extends boolean = true> {
-  heroStrip?:
-    | T
-    | {
-        title?: T;
-        stat?: T;
-        image?: T;
-        id?: T;
-      };
-  avenues?:
-    | T
-    | {
-        avenue?: T;
-        slug?: T;
-        accent?: T;
-        blurb?: T;
-        image?: T;
-        id?: T;
-      };
-  stats?:
-    | T
-    | {
-        value?: T;
-        suffix?: T;
-        label?: T;
-        body?: T;
-        id?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-  globalType?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "about-page_select".
- */
-export interface AboutPageSelect<T extends boolean = true> {
-  storyImages?:
-    | T
-    | {
-        image?: T;
-        alt?: T;
-        id?: T;
-      };
-  storyParagraphs?:
-    | T
-    | {
-        text?: T;
-        id?: T;
-      };
-  manifesto?:
-    | T
-    | {
-        text?: T;
-        accent?: T;
-        id?: T;
-      };
-  timeline?:
-    | T
-    | {
-        year?: T;
-        title?: T;
-        body?: T;
-        id?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

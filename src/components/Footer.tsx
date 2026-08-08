@@ -1,109 +1,59 @@
-"use client";
-
-import { useRef } from "react";
 import Link from "next/link";
-import { motion, useScroll, useTransform, useSpring, useMotionValue } from "framer-motion";
-import { nav } from "@/lib/nav";
-import type { SiteInfo } from "@/lib/types";
+import type { FooterData } from "@/lib/types";
 
-function Wordmark() {
-  const ref = useRef<SVGSVGElement>(null);
-  const mx = useMotionValue(0.5);
-  const sx = useSpring(mx, { stiffness: 40, damping: 20 });
-  const cx = useTransform(sx, (v) => `${v * 100}%`);
-
+/**
+ * Spacious editorial footer. The previous version's cursor-tracked giant wordmark
+ * was doing more work than the ending needs — this one just lays the club's
+ * identity, routes and contact details out cleanly and gets out of the way.
+ *
+ * No client JS: it is now a plain server component.
+ */
+export default function Footer({ data }: { data: FooterData }) {
   return (
-    <div
-      className="select-none"
-      onMouseMove={(e) => {
-        const r = ref.current?.getBoundingClientRect();
-        if (r) mx.set((e.clientX - r.left) / r.width);
-      }}
-    >
-      <svg ref={ref} viewBox="0 0 1224 240" className="w-full" aria-hidden>
-        <defs>
-          <radialGradient id="fw-spot" r="0.28" cx="0" cy="0.5">
-            <stop offset="0%" stopColor="white" stopOpacity="0.22" />
-            <stop offset="100%" stopColor="white" stopOpacity="0" />
-          </radialGradient>
-          <mask id="fw-mask">
-            <text x="50%" y="78%" textAnchor="middle" fontFamily="var(--font-jakarta)" fontWeight="800" fontSize="228" fill="white" letterSpacing="-6">
-              gaalaxy
-            </text>
-          </mask>
-        </defs>
-        <g mask="url(#fw-mask)">
-          <rect width="1224" height="240" fill="white" fillOpacity="0.06" />
-          <motion.circle r="340" cy="120" fill="url(#fw-spot)" style={{ cx }} />
-        </g>
-      </svg>
-    </div>
-  );
-}
-
-export default function Footer({ site }: { site: SiteInfo }) {
-  const wrapRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: wrapRef, offset: ["start end", "end end"] });
-  const y = useTransform(scrollYProgress, [0, 1], ["-45%", "0%"]);
-
-  const columns = [
-    { title: "pages", links: nav.map((n) => ({ label: n.label, href: n.href })) },
-    {
-      title: "get involved",
-      links: [
-        { label: "Become a Member", href: "/join" },
-        { label: "Blood Donor Registry", href: "/blood-donor" },
-        { label: "Say Hello", href: "/contact" },
-      ],
-    },
-    { title: "socials", links: site.socials.map((s) => ({ label: s.label, href: s.href })) },
-  ];
-
-  return (
-    <footer ref={wrapRef} className="relative overflow-hidden bg-space starfield">
-      <div className="relative z-10 bg-space pb-24 pt-12">
-        <div className="shell flex flex-wrap justify-between gap-12">
-          <div className="max-w-72">
-            <div className="text-2xl font-extrabold text-white">
-              gaalaxy<span className="text-starlight">✦</span>
+    <footer className="bg-space-deep text-paper">
+      <div className="shell py-20 max-md:py-14">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-12 md:grid-cols-12 md:gap-x-10">
+          <div className="col-span-2 md:col-span-4">
+            <div className="headline text-paper" style={{ "--h-min": "26px", "--h-max": "30px" } as React.CSSProperties}>
+              {data.brandText}
+              <span className="text-starlight">{data.brandSymbol}</span>
             </div>
-            <p className="mt-4 text-[14px] leading-relaxed text-white/40">
-              {site.parent} · Club ID {site.clubId} · {site.group} · {site.district}
+            <p className="mt-4 max-w-[34ch] text-[13px] leading-relaxed text-paper/45">
+              {data.brandLine}
             </p>
           </div>
-          <div className="flex flex-wrap gap-16 max-md:gap-10">
-            {columns.map((col) => (
-              <div key={col.title}>
-                <div className="text-[17px] font-medium lowercase text-white/30">{col.title}</div>
-                <ul className="mt-4 space-y-2.5">
-                  {col.links.map((l) => (
-                    <li key={l.label}>
-                      <Link href={l.href} className="wipe-link text-[17px] font-medium text-white/80" {...(l.href.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {})}>
-                        {l.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-            <div>
-              <div className="text-[17px] font-medium lowercase text-white/30">get in touch</div>
-              <ul className="mt-4 space-y-2.5">
-                <li><a href={site.emailHref} className="wipe-link text-[17px] font-medium text-white/80">{site.email}</a></li>
-                <li><a href={site.phoneHref} className="wipe-link text-[17px] font-medium text-white/80">{site.phone}</a></li>
+
+          {data.columns.map((col) => (
+            <nav
+              key={col.title}
+              aria-label={col.title}
+              className="col-span-1 md:col-span-2"
+            >
+              <h2 className="eyebrow text-paper/35">{col.title}</h2>
+              <ul className="mt-5 space-y-3">
+                {col.links.map((l) => (
+                  <li key={`${l.label}-${l.href}`}>
+                    <Link
+                      href={l.href}
+                      className="wipe-link text-[14px] text-paper/75 transition-colors hover:text-paper"
+                      {...(l.href.startsWith("http")
+                        ? { target: "_blank", rel: "noopener noreferrer" }
+                        : {})}
+                    >
+                      {l.label}
+                    </Link>
+                  </li>
+                ))}
               </ul>
-            </div>
-          </div>
+            </nav>
+          ))}
+        </div>
+
+        <div className="mt-20 flex flex-wrap items-center justify-between gap-3 border-t border-line-invert pt-8 max-md:mt-14">
+          <p className="text-[12px] text-paper/35">{data.copyright}</p>
+          <p className="text-[12px] text-paper/35">{data.note}</p>
         </div>
       </div>
-
-      <motion.div style={{ y }} className="bg-gradient-to-b from-space-deep to-space px-9 pt-10">
-        <Wordmark />
-        <div className="shell mt-10 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 py-8">
-          <p className="text-[15px] text-white/30">© {new Date().getFullYear()} {site.name}. All rights reserved.</p>
-          <p className="text-[15px] text-white/30">{site.tagline.split(".")[0]}.</p>
-        </div>
-      </motion.div>
     </footer>
   );
 }

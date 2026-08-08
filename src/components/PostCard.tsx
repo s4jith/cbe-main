@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import Image from "next/image";
-import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
+import { m, useScroll, useTransform, useReducedMotion } from "framer-motion";
 
 /** Testimonial "social-post" card with browser-tab chrome; columns parallax-drift at different speeds. */
 export default function PostCard({
@@ -24,10 +24,10 @@ export default function PostCard({
   const y = useTransform(scrollYProgress, [0, 1], [0, drift]);
 
   return (
-    <motion.div ref={ref} style={reduced ? undefined : { y }} className="relative will-change-transform">
+    <m.div ref={ref} style={reduced ? undefined : { y }} className="relative will-change-transform">
       <div className="flex h-[50px] items-center gap-3 rounded-t-2xl bg-white px-5">
         <span className="flex h-8 w-8 items-center justify-center rounded-full bg-mist text-sm">✦</span>
-        <span className="text-[14px] font-bold text-ink">gaalaxy voices</span>
+        <span className="text-[14px] font-bold text-ink">member voices</span>
       </div>
       <div className="bg-[#FAFAFA] p-6">
         <span className="text-3xl font-extrabold text-starlight leading-none">&ldquo;</span>
@@ -44,6 +44,6 @@ export default function PostCard({
         <span aria-hidden>♥</span>
         <span aria-hidden>⚑</span>
       </div>
-    </motion.div>
+    </m.div>
   );
 }

@@ -8,6 +8,7 @@ export const Users: CollectionConfig = {
     useAsTitle: "name",
     defaultColumns: ["name", "email", "role"],
     group: "Admin",
+    description: "People who can sign in and edit the website.",
   },
   access: {
     // Admins manage accounts; everyone can read their own profile (needed by the admin UI).

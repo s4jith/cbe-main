@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { motion, useReducedMotion } from "framer-motion";
+import { m, useReducedMotion } from "framer-motion";
 
 const rotations = [-8, 4, 8, -4, 6];
 
@@ -12,7 +12,7 @@ export default function PhotoFan({ images }: { images: { src: string; alt: strin
   return (
     <div className="flex justify-center max-md:flex-wrap max-md:gap-4">
       {images.slice(0, 5).map((img, i) => (
-        <motion.div
+        <m.div
           key={img.src}
           className="relative -mx-4 h-[420px] w-[298px] overflow-hidden rounded-3xl shadow-card max-md:mx-0 max-md:h-[220px] max-md:w-[46%]"
           style={{ rotate: rotations[i], zIndex: i === 2 ? 3 : 1 }}
@@ -28,7 +28,7 @@ export default function PhotoFan({ images }: { images: { src: string; alt: strin
         >
           <Image src={img.src} alt={img.alt} fill sizes="298px" className="object-cover" />
           <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/30" />
-        </motion.div>
+        </m.div>
       ))}
     </div>
   );

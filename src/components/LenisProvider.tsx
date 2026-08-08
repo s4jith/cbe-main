@@ -1,28 +1,63 @@
 "use client";
 
 import { useEffect, type ReactNode } from "react";
-import Lenis from "lenis";
 
+type Lockable = { stop: () => void; start: () => void };
+
+let instance: Lockable | null = null;
+
+/**
+ * Pause/resume smooth scroll from anywhere — the mobile nav overlay needs the page
+ * behind it to hold still. A module singleton rather than context: there is exactly
+ * one Lenis on the page and this avoids a provider re-render on every toggle.
+ */
+export const smoothScroll = {
+  stop: () => instance?.stop(),
+  start: () => instance?.start(),
+};
+
+/**
+ * Smooth scroll, loaded off the critical path.
+ *
+ * Lenis is imported inside the effect rather than at module scope so it never
+ * lands in the initial bundle — nothing can scroll before hydration anyway, and
+ * visitors with reduced-motion set never download it at all.
+ */
 export default function LenisProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-    const lenis = new Lenis({
-      duration: 1.6,
-      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      smoothWheel: true,
+    let alive = true;
+    let raf = 0;
+    let destroy = () => {};
+
+    import("lenis").then(({ default: Lenis }) => {
+      if (!alive) return;
+
+      const lenis = new Lenis({
+        // 1.6 (the DESIGN.md figure) leaves the page visibly trailing the wheel;
+        // 1.0 keeps the eased feel without the lag.
+        duration: 1.0,
+        easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        smoothWheel: true,
+      });
+
+      const loop = (time: number) => {
+        lenis.raf(time);
+        raf = requestAnimationFrame(loop);
+      };
+      raf = requestAnimationFrame(loop);
+      instance = lenis;
+      destroy = () => {
+        instance = null;
+        lenis.destroy();
+      };
     });
 
-    let raf = 0;
-    const loop = (time: number) => {
-      lenis.raf(time);
-      raf = requestAnimationFrame(loop);
-    };
-    raf = requestAnimationFrame(loop);
-
     return () => {
+      alive = false;
       cancelAnimationFrame(raf);
-      lenis.destroy();
+      destroy();
     };
   }, []);
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, type ReactNode } from "react";
-import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
+import { m, useScroll, useTransform, useReducedMotion } from "framer-motion";
 
 /** Sticky hero content that scales to 0.88 and fades out over the first ~500px of scroll. */
 export default function HeroShrink({ children }: { children: ReactNode }) {
@@ -15,9 +15,9 @@ export default function HeroShrink({ children }: { children: ReactNode }) {
 
   return (
     <div ref={ref} className="sticky top-28 z-10">
-      <motion.div style={{ scale, opacity }} className="will-change-transform">
+      <m.div style={{ scale, opacity }} className="will-change-transform">
         {children}
-      </motion.div>
+      </m.div>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
+import { m, useReducedMotion } from "framer-motion";
 import type { ReactNode } from "react";
 
 /** Rise-and-inflate card reveal (ref-site .cards-reveal). */
@@ -20,7 +20,7 @@ export default function Reveal({
   const reduced = useReducedMotion();
 
   return (
-    <motion.div
+    <m.div
       className={className}
       initial={reduced ? false : { y, scale: scale ? 0.92 : 1, opacity: 0 }}
       whileInView={{ y: 0, scale: 1, opacity: 1 }}
@@ -32,6 +32,6 @@ export default function Reveal({
       }}
     >
       {children}
-    </motion.div>
+    </m.div>
   );
 }

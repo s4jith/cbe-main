@@ -1,1 +1,196 @@
-/* Custom styles for the Payload admin panel. */
+/* Custom styles for the Payload admin panel — brand skin + the components in src/admin. */
+
+:root {
+  --gx-starlight: #ffd84d;
+  --gx-space: #0a0b14;
+  --gx-ink: #0e1020;
+  --gx-line: rgb(128 128 145 / 0.22);
+  --gx-muted: rgb(128 128 145 / 0.9);
+}
+
+.payload-default-theme,
+[data-theme="light"] {
+  --theme-success-500: #1f9d55;
+  --theme-elevation-0: #ffffff;
+  --theme-bg: #f4f5f8;
+}
+
+/* ---------------------------------------------------------------- branding */
+.gx-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  align-items: center;
+  text-align: center;
+
+  &__mark {
+    color: var(--gx-starlight);
+    font-size: 2.25rem;
+    line-height: 1;
+  }
+  &__text {
+    font-size: 1.6rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+  &__dim {
+    opacity: 0.35;
+    font-weight: 600;
+  }
+  &__sub {
+    font-size: 0.8rem;
+    color: var(--gx-muted);
+    max-width: 22rem;
+  }
+}
+
+.gx-icon {
+  color: var(--gx-starlight);
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+/* ------------------------------------------------------------ nav shortcut */
+.gx-nav-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin: 1rem 0 0;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--gx-line);
+  border-radius: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: rgb(255 216 77 / 0.12);
+    border-color: rgb(255 216 77 / 0.55);
+  }
+}
+
+/* Group headings in the sidebar read as sections, not shouty labels. */
+.nav__label {
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 700;
+  opacity: 0.55;
+}
+
+/* -------------------------------------------------------------- dashboard */
+.gx-dash {
+  margin-bottom: 2.5rem;
+
+  &__hero {
+    padding: 2rem 2rem 2.25rem;
+    border-radius: 1rem;
+    background: linear-gradient(135deg, var(--gx-space), #1b1e30);
+    color: #fff;
+  }
+  &__title {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+
+    span {
+      color: var(--gx-starlight);
+    }
+  }
+  &__lede {
+    margin: 0.6rem 0 0;
+    max-width: 46rem;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: rgb(255 255 255 / 0.66);
+  }
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 1.35rem;
+  }
+  &__btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.6rem 1.1rem;
+    border-radius: 999px;
+    background: var(--gx-starlight);
+    color: #5c4300;
+    font-size: 0.85rem;
+    font-weight: 800;
+    text-decoration: none;
+
+    &--quiet {
+      background: rgb(255 255 255 / 0.1);
+      color: #fff;
+    }
+    &:hover {
+      opacity: 0.88;
+    }
+  }
+
+  &__group {
+    margin-top: 2.25rem;
+  }
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(15.5rem, 1fr));
+    gap: 0.75rem;
+  }
+  &__card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    padding: 1rem 1.1rem;
+    border: 1px solid var(--gx-line);
+    border-radius: 0.75rem;
+    background: var(--theme-elevation-0);
+    text-decoration: none;
+    color: inherit;
+    transition:
+      transform 0.16s ease,
+      border-color 0.16s ease,
+      box-shadow 0.16s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      border-color: rgb(255 216 77 / 0.75);
+      box-shadow: 0 10px 24px -14px rgb(0 0 0 / 0.45);
+    }
+  }
+  &__cardtitle {
+    font-size: 0.95rem;
+    font-weight: 700;
+  }
+  &__carddesc {
+    font-size: 0.8rem;
+    line-height: 1.45;
+    color: var(--gx-muted);
+  }
+}
+
+/* --------------------------------------------------------- form ergonomics */
+/* Field help text is the main way editors know what a field does — make it readable. */
+.field-description {
+  font-size: 0.78rem;
+  line-height: 1.45;
+  opacity: 0.75;
+}
+
+/* Collapsible section headers behave like chapter dividers. */
+.collapsible__toggle-wrap {
+  font-weight: 700;
+}
+
+.group-field__wrap > .group-field__header .group-field__title {
+  font-weight: 700;
+}
+
+/* Give array rows breathing room so long forms stay scannable. */
+.array-field__draggable-rows > * + * {
+  margin-top: 0.4rem;
+}

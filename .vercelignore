@@ -1,0 +1,3 @@
+# Seed sources are only ever read by `pnpm seed`, which is run locally against the
+# database. Shipping ~27 MB of source imagery on every deploy buys nothing.
+scripts/seed-assets

@@ -10,6 +10,13 @@ export type Project = {
   avenue: Avenue;
   description: string;
   image: string;
+  /**
+   * Month/year the project happened, ISO format ("2025-03-01"). The Projects
+   * collection now requires this — it drives the year/month filters on the
+   * site. None of the entries below have a real one on file; scripts/seed.ts
+   * refuses to import a project with no date rather than invent one.
+   */
+  date?: string;
 };
 
 export const avenues: {

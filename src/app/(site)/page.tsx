@@ -1,168 +1,188 @@
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import HeroShrink from "@/components/HeroShrink";
-import HeroStrip from "@/components/HeroStrip";
-import SplitHeadline from "@/components/SplitHeadline";
-import AvenueCard from "@/components/AvenueCard";
-import StatsOdometer from "@/components/StatsOdometer";
-import ProgressTabs from "@/components/ProgressTabs";
+import type { Metadata } from "next";
+import Link from "next/link";
+import { SiteHeader, SiteFooter } from "@/components/SiteChrome";
+import Hero from "@/components/Hero";
+import Headline from "@/components/Headline";
+import AvenueList from "@/components/AvenueList";
+import StatsEditorial from "@/components/StatsEditorial";
+import FlagshipStory from "@/components/FlagshipStory";
 import FourWayTest from "@/components/FourWayTest";
-import PostCard from "@/components/PostCard";
-import TeamSlider from "@/components/TeamSlider";
+import TeamScroller from "@/components/TeamScroller";
 import CTABanner from "@/components/CTABanner";
 import Marquee from "@/components/Marquee";
-import Reveal from "@/components/Reveal";
 import { ArrowButton } from "@/components/Buttons";
+import * as D from "@/lib/defaults";
 import {
+  fill,
   getFlagship,
   getHomeContent,
   getMembers,
   getProjects,
   getSiteSettings,
-  getVoices,
+  siteVars,
 } from "@/lib/content";
 
+export async function generateMetadata(): Promise<Metadata> {
+  const home = getHomeContent();
+  return {
+    ...(home.seo.title ? { title: home.seo.title } : {}),
+    ...(home.seo.description ? { description: home.seo.description } : {}),
+    ...(home.seo.image ? { openGraph: { images: [home.seo.image] } } : {}),
+    ...(home.seo.noIndex ? { robots: { index: false, follow: false } } : {}),
+  };
+}
+
 export default async function Home() {
-  const [site, home, projects, flagship, board, voices] = await Promise.all([
-    getSiteSettings(),
-    getHomeContent(),
+  const site = getSiteSettings();
+  const home = getHomeContent();
+  const [projects, flagship, board] = await Promise.all([
     getProjects(),
     getFlagship(),
     getMembers("board"),
-    getVoices(),
   ]);
+  const vars = siteVars(site, { count: projects.length });
+
+  // Project counts per avenue, resolved once for the avenue index.
+  const counts = Object.fromEntries(
+    home.avenues.map((a) => [a.key, projects.filter((p) => p.avenue === a.key).length]),
+  );
 
   return (
     <>
-      <Header tone="light" />
-      <main>
-        {/* Hero */}
-        <section className="pt-40 max-md:pt-32">
-          <div className="shell">
-            <HeroShrink>
-              <SplitHeadline
-                as="h1"
-                lines={[
-                  "We don't just serve.",
-                  <span key="l2">
-                    We lead <span className="text-starlight">✦</span> we rise.
-                  </span>,
-                ]}
-                className="mx-auto max-w-4xl text-center text-[82px] font-extrabold leading-[1.08] tracking-tight text-ink max-lg:text-[56px] max-md:text-[40px]"
-              />
-              <p className="mx-auto mt-6 max-w-xl text-center text-[17px] font-medium leading-relaxed text-ink/60">
-                {site.name} — {site.parent}. Youth-led service and leadership under {site.district}, Coimbatore. 15+ years of community impact, 500+ projects, and growing.
-              </p>
-            </HeroShrink>
-          </div>
-          <div className="mt-16">
-            <HeroStrip items={home.heroStrip} />
-          </div>
-        </section>
+      <SiteHeader tone="light" />
+      <main id="main">
+        <Hero
+          eyebrow={D.home.heroEyebrow}
+          lines={home.hero.headline.lines}
+          body={fill(home.hero.body, vars)}
+          feature={D.home.heroFeature}
+          primary={{ label: "Join Us", href: "/join" }}
+          secondary={{ label: "See the work", href: "/projects" }}
+        />
 
-        {/* Avenues */}
-        <section className="starfield bg-space py-18">
+        {/* --- Avenues: the editorial index + signature hover preview -------- */}
+        <section className="section-y mt-24 bg-space text-paper max-lg:mt-16">
           <div className="shell">
-            <SplitHeadline
-              lines={["Five avenues.", "One force."]}
-              className="max-w-xl text-[42px] font-extrabold leading-[1.1] text-white max-md:text-[32px]"
-            />
-            <div className="mt-12 space-y-8">
-              {home.avenues.map((a, i) => (
-                <AvenueCard
-                  key={a.key}
-                  title={a.key}
-                  blurb={a.blurb}
-                  count={projects.filter((p) => p.avenue === a.key).length}
-                  accent={a.accent}
-                  image={a.image}
-                  href={`/projects?avenue=${a.slug}`}
-                  index={i}
+            <div className="grid gap-6 lg:grid-cols-12 lg:items-end lg:gap-8">
+              <div className="lg:col-span-7">
+                <p className="eyebrow text-paper/40">Five avenues</p>
+                <Headline
+                  data={home.avenuesSection.headline}
+                  sizes={[52, 44, 32]}
+                  className="mt-5 max-w-[14ch] text-paper"
                 />
-              ))}
+              </div>
+              <div className="flex lg:col-span-5 lg:justify-end">
+                <ArrowButton href="/projects" variant="light">
+                  {home.avenuesSection.linkLabel}
+                </ArrowButton>
+              </div>
             </div>
-          </div>
-        </section>
 
-        {/* Stats */}
-        <StatsOdometer stats={home.stats} />
-
-        {/* Flagship spotlight */}
-        <section className="starfield bg-space py-24 max-md:py-16">
-          <div className="shell">
-            <SplitHeadline
-              lines={["Built to", "break barriers."]}
-              className="max-w-xl text-[42px] font-extrabold leading-[1.1] text-white max-md:text-[32px]"
-            />
-            <div className="mt-12">
-              <ProgressTabs
-                tabs={flagship.map((f) => ({
-                  label: f.title,
-                  title: f.tag,
-                  body: f.description,
-                  image: f.image,
-                  stat: f.stat,
-                }))}
+            <div className="mt-16 max-lg:mt-10">
+              <AvenueList
+                avenues={home.avenues}
+                counts={counts}
+                countLabel={home.avenuesSection.countLabel}
               />
             </div>
           </div>
         </section>
 
-        {/* Four-Way Test */}
+        {/* --- Numbers ------------------------------------------------------ */}
+        <section className="section-y bg-paper">
+          <div className="shell">
+            <div className="grid gap-6 lg:grid-cols-12 lg:items-end lg:gap-8">
+              <div className="lg:col-span-8">
+                <p className="eyebrow text-ink/45">By the numbers</p>
+                <Headline
+                  data={home.statsSection.headline}
+                  sizes={[52, 44, 32]}
+                  className="mt-5 max-w-[14ch] text-ink"
+                />
+              </div>
+            </div>
+            <div className="mt-14 max-lg:mt-10">
+              <StatsEditorial stats={home.stats} />
+            </div>
+          </div>
+        </section>
+
+        {/* --- Flagship story ----------------------------------------------- */}
+        {flagship.length > 0 && (
+          <section className="section-y bg-space text-paper">
+            <div className="shell">
+              <div className="mb-16 max-lg:mb-10">
+                <p className="eyebrow text-paper/40">Flagship work</p>
+                <Headline
+                  data={home.flagship.headline}
+                  sizes={[52, 44, 32]}
+                  className="mt-5 max-w-[14ch] text-paper"
+                />
+              </div>
+              <FlagshipStory items={flagship} />
+            </div>
+          </section>
+        )}
+
         <FourWayTest />
 
-        {/* Voices */}
-        <section className="bg-mist pb-20 pt-6">
-          <div className="shell">
-            <SplitHeadline
-              lines={["Voices from", "the galaxy."]}
-              className="max-w-xl text-[42px] font-extrabold leading-[1.1] text-ink max-md:text-[32px]"
-            />
-            <div className="mt-12 grid grid-cols-3 gap-8 max-lg:grid-cols-1">
-              {voices.map((v, i) => (
-                <PostCard key={v.name} quote={v.quote} name={v.name} role={v.role} image={v.image} drift={[-40, 0, -18][i % 3]} />
-              ))}
+        {/* --- Team --------------------------------------------------------- */}
+        {board.length > 0 && (
+          <section className="section-y bg-mist">
+            <div className="shell">
+              <div className="grid gap-6 lg:grid-cols-12 lg:items-end lg:gap-8">
+                <div className="lg:col-span-7">
+                  <p className="eyebrow text-ink/45">The team</p>
+                  <Headline
+                    data={home.team.headline}
+                    sizes={[52, 44, 32]}
+                    className="mt-5 max-w-[12ch] text-ink"
+                  />
+                </div>
+                <div className="flex lg:col-span-5 lg:justify-end">
+                  <ArrowButton href="/team" variant="dark">
+                    {home.team.cta.label}
+                  </ArrowButton>
+                </div>
+              </div>
+              <div className="mt-14 max-lg:mt-10">
+                <TeamScroller members={board.slice(0, home.team.limit)} />
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+        )}
 
-        {/* Stars teaser */}
-        <section className="starfield bg-space pt-18">
-          <div className="shell flex flex-wrap items-end justify-between gap-6">
-            <SplitHeadline
-              lines={["Meet the", "Stars of Gaalaxy."]}
-              className="max-w-xl text-[42px] font-extrabold leading-[1.1] text-white max-md:text-[32px]"
-            />
-            <Reveal y={20} scale={false}>
-              <ArrowButton href="/team" variant="light">View all stars</ArrowButton>
-            </Reveal>
-          </div>
-          <div className="mt-10">
-            <TeamSlider members={board.slice(0, 8)} />
-          </div>
-        </section>
+        {/* --- Socials marquee ---------------------------------------------- */}
+        {site.socials.length > 0 && (
+          <section className="border-y border-line bg-paper py-10">
+            <Marquee>
+              {site.socials.map((s) => (
+                <Link
+                  key={s.label}
+                  href={s.href}
+                  {...(s.href.startsWith("http")
+                    ? { target: "_blank", rel: "noopener noreferrer" }
+                    : {})}
+                  className="marquee-link headline text-ink/25 transition-colors"
+                  style={
+                    {
+                      "--h-min": "28px",
+                      "--h-max": "40px",
+                      "--marquee-hover": "var(--color-starlight-deep)",
+                    } as React.CSSProperties
+                  }
+                >
+                  {s.label}
+                </Link>
+              ))}
+            </Marquee>
+          </section>
+        )}
 
-        {/* Socials marquee */}
-        <section className="bg-space py-12">
-          <Marquee>
-            {site.socials.map((s) => (
-              <a
-                key={s.label}
-                href={s.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-4 text-[42px] font-extrabold text-white/25 transition-colors hover:text-starlight"
-              >
-                {s.label}
-                <span className="text-[20px] text-starlight">✦</span>
-              </a>
-            ))}
-          </Marquee>
-        </section>
-
-        <CTABanner />
+        {home.showCta && <CTABanner />}
       </main>
-      <Footer site={site} />
+      <SiteFooter />
     </>
   );
 }

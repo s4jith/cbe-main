@@ -1,23 +1,26 @@
 {
-  "name": "rotaract-gaalaxy",
+  "name": "rotaract-coimbatore-main",
   "version": "1.0.0",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "next dev",
-    "build": "next build --webpack",
+    "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "seed": "payload run scripts/seed.ts",
     "generate:types": "payload generate:types",
-    "generate:importmap": "payload generate:importmap"
+    "generate:importmap": "payload generate:importmap",
+    "compress:images": "node scripts/compress-images.mjs"
   },
   "dependencies": {
-    "@payloadcms/db-vercel-postgres": "^3.86.0",
+    "@payloadcms/db-mongodb": "3.86.0",
     "@payloadcms/next": "^3.86.0",
     "@payloadcms/richtext-lexical": "^3.86.0",
     "@payloadcms/storage-vercel-blob": "^3.86.0",
+    "@payloadcms/ui": "^3.86.0",
+    "cloudinary": "^2.10.0",
     "framer-motion": "^12.42.2",
     "graphql": "^16.14.2",
     "lenis": "^1.3.25",
@@ -33,6 +36,7 @@
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "postcss": "^8.5.19",
+    "sass": "^1.77.4",
     "tailwindcss": "^4.3.3",
     "typescript": "^6.0.3"
   },

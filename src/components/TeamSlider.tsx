@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
+import { m, useScroll, useTransform, useReducedMotion } from "framer-motion";
 import PhotoCard from "@/components/PhotoCard";
 import type { Member } from "@/lib/types";
 
@@ -9,7 +9,11 @@ import type { Member } from "@/lib/types";
 export default function TeamSlider({ members }: { members: Member[] }) {
   const ref = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
+  // See HeroStrip: the reduced-motion branch never attaches this ref.
+  const { scrollYProgress } = useScroll({
+    target: reduced ? undefined : ref,
+    offset: ["start start", "end end"],
+  });
   const x = useTransform(scrollYProgress, [0, 1], ["0%", "-58%"]);
 
   const cards = members.map((m) => (
@@ -23,9 +27,9 @@ export default function TeamSlider({ members }: { members: Member[] }) {
   return (
     <div ref={ref} className="relative h-[200vh]">
       <div className="sticky top-0 flex h-screen items-center overflow-hidden">
-        <motion.div style={{ x }} className="shell bleed-right flex gap-6 will-change-transform">
+        <m.div style={{ x }} className="shell bleed-right flex gap-6 will-change-transform">
           {cards}
-        </motion.div>
+        </m.div>
       </div>
     </div>
   );

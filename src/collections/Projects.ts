@@ -14,8 +14,11 @@ export const Projects: CollectionConfig = {
   slug: "projects",
   admin: {
     useAsTitle: "title",
-    defaultColumns: ["title", "avenue", "order"],
+    defaultColumns: ["image", "title", "avenue", "order"],
     group: "Content",
+    description: "Every project card on the projects page and the counts on the home page.",
+    listSearchableFields: ["title", "description"],
+    pagination: { defaultLimit: 25 },
   },
   access: {
     read: anyone,
@@ -43,6 +46,17 @@ export const Projects: CollectionConfig = {
       type: "upload",
       relationTo: "media",
       required: true,
+    },
+    {
+      name: "date",
+      type: "date",
+      required: true,
+      admin: {
+        position: "sidebar",
+        date: { pickerAppearance: "monthOnly", displayFormat: "MMM yyyy" },
+        description:
+          "Month and year this happened. Powers the year/month filters on the projects page — club years run July to June, so a project dated any month from July through December belongs to that calendar year's edition, and January through June belongs to the following one.",
+      },
     },
     {
       name: "order",

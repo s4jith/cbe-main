@@ -1,30 +1,64 @@
 @import "tailwindcss";
 
+/* =============================================================================
+   Rotaract Coimbatore Main — design system
+
+   One accent, warm paper, near-black ink. Secondary hues exist only as small
+   markers (avenue dots), never as fills for whole sections — the brief calls for
+   composition and photography to carry the page, not colour.
+
+   Token names are inherited from the previous palette on purpose: every existing
+   `bg-space` / `text-starlight` reference re-skins from here instead of needing a
+   sweep through every component.
+   ========================================================================== */
+
 @theme {
-  /* Deep Space, Warm Stars — see DESIGN.md §4 */
-  --color-space: #0a0b14;
-  --color-space-deep: #05060d;
-  --color-ink: #0e1020;
-  --color-paper: #ffffff;
-  --color-mist: #f2f3f7;
-  --color-starlight: #ffd84d;
-  --color-starlight-ink: #5c4300;
-  --color-nebula: #a79bff;
-  --color-nebula-ink: #2b2166;
-  --color-comet: #8cc9fa;
-  --color-comet-ink: #143e7c;
-  --color-cranberry: #fd4f79;
-  --color-cranberry-ink: #4a0a24;
+  /* --- surfaces: warm, paper-like, never pure white --------------------- */
+  --color-paper: #f7f4ee;
+  --color-mist: #ece7dd;
+  --color-ink: #16150f;
+  --color-ink-soft: #46433a;
+  --color-space: #16150f;
+  --color-space-deep: #0c0b07;
 
-  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  /* --- the one accent: club gold ---------------------------------------- */
+  /* `starlight` fills (buttons, markers); `starlight-ink` is text on that fill;
+     `starlight-deep` is the only gold that passes AA as text on paper. */
+  --color-starlight: #e0a11b;
+  --color-starlight-ink: #2e1f00;
+  --color-starlight-deep: #8a5e06;
 
-  --shadow-card: 0 24px 50px -12px rgb(0 0 0 / 0.18), 0 8px 20px -8px rgb(0 0 0 / 0.12);
-  --shadow-banner: 0 63px 38px rgb(0 0 0 / 0.03), 0 28px 28px rgb(0 0 0 / 0.05);
+  /* --- muted secondaries: avenue markers only --------------------------- */
+  --color-comet: #7c93a3;
+  --color-comet-ink: #16242c;
+  --color-nebula: #8d7f95;
+  --color-nebula-ink: #2a2230;
+  --color-cranberry: #b5654f;
+  --color-cranberry-ink: #f8ece8;
+
+  /* --- hairlines -------------------------------------------------------- */
+  --color-line: rgb(22 21 15 / 0.14);
+  --color-line-strong: rgb(22 21 15 / 0.28);
+  --color-line-invert: rgb(247 244 238 / 0.18);
+
+  --font-sans: var(--font-sans-var), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-display), ui-serif, Georgia, serif;
+
+  /* Editorial corners: near-square. Nothing on this site is a pill except the
+     one primary CTA, which opts in explicitly. */
+  --radius-xs: 2px;
+  --radius-sm: 3px;
+  --radius-md: 5px;
+  --radius-lg: 8px;
+
+  --shadow-card: 0 18px 40px -24px rgb(22 21 15 / 0.35);
+  --shadow-lift: 0 28px 60px -30px rgb(22 21 15 / 0.45);
 
   --ease-out-quint: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-editorial: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
   --ease-spring-heavy: cubic-bezier(0.34, 2.8, 0.64, 1);
   --ease-back: cubic-bezier(0.34, 1.56, 0.64, 1);
-  --ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 html,
@@ -36,6 +70,8 @@ body {
 
 body {
   position: relative; /* framer-motion useScroll offset measurement expects a positioned ancestor */
+  font-synthesis-weight: none;
+  text-rendering: optimizeLegibility;
 }
 
 ::selection {
@@ -43,57 +79,110 @@ body {
   color: var(--color-starlight-ink);
 }
 
-/* --- container: 1300px incl. 64px gutters (ref site geometry) --- */
-.shell {
-  width: 100%;
-  max-width: 1300px;
-  margin-inline: auto;
-  padding-inline: 64px;
-}
-@media (max-width: 1024px) {
-  .shell {
-    padding-inline: 16px;
-  }
+/* Keyboard focus must stay visible everywhere; pointer focus stays quiet. */
+:focus-visible {
+  outline: 2px solid var(--color-starlight-deep);
+  outline-offset: 3px;
+  border-radius: var(--radius-xs);
 }
 
-/* full-bleed breakout that still starts on the container's left edge */
+/* =============================================================================
+   Typography
+   ========================================================================== */
+
+/* Fluid display type. The component precomputes the clamp() terms from its
+   min/max px pair, so size interpolates smoothly with the viewport instead of
+   jumping at breakpoints. */
+.headline {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(var(--h-min, 34px), var(--h-fluid, 5vw), var(--h-max, 72px));
+  line-height: 1.02;
+  letter-spacing: -0.018em;
+}
+
+/* Sans headings for supporting/structural moments — labels, card titles. */
+.title-sans {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+/* The small uppercase label above a section. Tracked out, never shouty. */
+.eyebrow {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+}
+
+/* Intro paragraph — one step up from body, still comfortable to read. */
+.lede {
+  font-size: clamp(16px, 0.55vw + 14.5px, 19px);
+  line-height: 1.6;
+  letter-spacing: -0.005em;
+}
+
+.body-text {
+  font-size: clamp(15px, 0.35vw + 14px, 17px);
+  line-height: 1.65;
+}
+
+/* Tabular figures keep counting numbers from jittering mid-animation. */
+.numeric {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* =============================================================================
+   Layout
+   ========================================================================== */
+
+.shell {
+  width: 100%;
+  max-width: 1320px;
+  margin-inline: auto;
+  padding-inline: clamp(20px, 5vw, 72px);
+}
+
+/* Full-bleed breakout that still starts on the container's left edge. */
 .bleed-right {
   width: 100vw;
   padding-left: calc((100vw - 100%) / 2);
   margin-left: calc((100vw - 100%) / -2);
 }
 
-/* --- jelly CTA hover (transform on inner span so layout is untouched) --- */
-@keyframes btn-in {
-  from {
-    transform: scale(1);
-  }
-  to {
-    transform: scale(1.06);
-  }
+/* Section rhythm — one scale, so vertical spacing is consistent site-wide. */
+.section-y {
+  padding-block: clamp(64px, 9vw, 140px);
 }
-@keyframes btn-out {
-  0% {
-    transform: scale(1.06);
-  }
-  45% {
-    transform: scale(0.975);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-.jelly {
-  display: inline-flex;
-}
-.jelly:hover {
-  animation: btn-in 0.42s var(--ease-spring-heavy) forwards;
-}
-.jelly:not(:hover) {
-  animation: btn-out 0.35s var(--ease-out-quint) forwards;
+.section-y-tight {
+  padding-block: clamp(48px, 6vw, 96px);
 }
 
-/* --- footer link underline: draw in from left, wipe out to the right --- */
+.rule {
+  border: 0;
+  border-top: 1px solid var(--color-line);
+}
+
+/* =============================================================================
+   Components
+   ========================================================================== */
+
+/* Primary CTA press feedback. Scale only — cheap to composite. */
+.jelly {
+  display: inline-flex;
+  transition: transform 0.28s var(--ease-editorial);
+}
+.jelly:hover {
+  transform: scale(1.025);
+}
+.jelly:active {
+  transform: scale(0.985);
+}
+
+/* Link underline: draws in from the left, wipes out to the right. */
 .wipe-link {
   position: relative;
 }
@@ -110,7 +199,8 @@ body {
     width 0.35s ease,
     left 0.35s ease;
 }
-.wipe-link:hover::after {
+.wipe-link:hover::after,
+.wipe-link:focus-visible::after {
   width: 100%;
 }
 .wipe-link:not(:hover)::after {
@@ -121,21 +211,50 @@ body {
     width 0.35s ease;
 }
 
-/* subtle starfield for dark bands */
-.starfield {
-  background-image:
-    radial-gradient(1px 1px at 12% 28%, rgb(255 255 255 / 0.14) 50%, transparent 51%),
-    radial-gradient(1px 1px at 38% 72%, rgb(255 255 255 / 0.1) 50%, transparent 51%),
-    radial-gradient(1.5px 1.5px at 64% 18%, rgb(255 255 255 / 0.12) 50%, transparent 51%),
-    radial-gradient(1px 1px at 82% 56%, rgb(255 255 255 / 0.09) 50%, transparent 51%),
-    radial-gradient(1.5px 1.5px at 91% 84%, rgb(255 255 255 / 0.1) 50%, transparent 51%),
-    radial-gradient(1px 1px at 24% 88%, rgb(255 255 255 / 0.08) 50%, transparent 51%);
+.marquee-link:hover {
+  color: var(--marquee-hover, var(--color-starlight));
 }
 
+.pdf-link:hover .pdf-link__cta {
+  color: var(--pdf-hover, var(--color-starlight));
+}
+
+/* Photographic grain. One repeating SVG turbulence tile over imagery keeps the
+   photography from looking flat-digital; it is decorative and pointer-inert. */
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.42;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+}
+
+/* Retained for the dark bands that still use it, dialled well back. */
+.starfield {
+  background-image:
+    radial-gradient(1px 1px at 18% 32%, rgb(255 255 255 / 0.07) 50%, transparent 51%),
+    radial-gradient(1px 1px at 64% 18%, rgb(255 255 255 / 0.06) 50%, transparent 51%),
+    radial-gradient(1px 1px at 88% 72%, rgb(255 255 255 / 0.05) 50%, transparent 51%);
+}
+
+/* =============================================================================
+   Reduced motion — a clean static experience, not a degraded one.
+   ========================================================================== */
+
 @media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
   .jelly:hover,
-  .jelly:not(:hover) {
-    animation: none;
+  .jelly:active {
+    transform: none;
   }
   html {
     scroll-behavior: auto;

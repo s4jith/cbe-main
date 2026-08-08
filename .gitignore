@@ -24,3 +24,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .vercel
+
+# directories
+/MAIN\ legacy/
+/Professional\ Photo\ (File\ responses)/

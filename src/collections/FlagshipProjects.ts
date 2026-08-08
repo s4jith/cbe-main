@@ -10,8 +10,9 @@ export const FlagshipProjects: CollectionConfig = {
   },
   admin: {
     useAsTitle: "title",
-    defaultColumns: ["title", "tag", "order"],
+    defaultColumns: ["image", "title", "tag", "order"],
     group: "Content",
+    description: "The spotlight tabs in the “Built to break barriers” section of the home page.",
   },
   access: {
     read: anyone,
