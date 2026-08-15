@@ -10,12 +10,14 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "seed": "payload run scripts/seed.ts",
+    "seed:cms": "payload run scripts/seed-cms.ts",
     "generate:types": "payload generate:types",
     "generate:importmap": "payload generate:importmap",
     "compress:images": "node scripts/compress-images.mjs"
   },
   "dependencies": {
     "@payloadcms/db-mongodb": "3.86.0",
+    "@payloadcms/email-resend": "3.86.0",
     "@payloadcms/next": "^3.86.0",
     "@payloadcms/richtext-lexical": "^3.86.0",
     "@payloadcms/storage-vercel-blob": "^3.86.0",

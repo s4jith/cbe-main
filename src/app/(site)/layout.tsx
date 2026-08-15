@@ -28,7 +28,7 @@ const sans = Inter({
 });
 
 export async function generateMetadata(): Promise<Metadata> {
-  const site = getSiteSettings();
+  const site = await getSiteSettings();
   return {
     metadataBase: new URL(site.url),
     title: {

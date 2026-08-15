@@ -59,6 +59,28 @@ export const Projects: CollectionConfig = {
       },
     },
     {
+      name: "relatedPost",
+      type: "relationship",
+      relationTo: "blogs",
+      label: "Write-up",
+      admin: {
+        position: "sidebar",
+        description:
+          "Optional. The blog post telling this project's story — a project card on the home page opens it. Without one the card falls back to the blog index.",
+      },
+    },
+    {
+      name: "featured",
+      type: "checkbox",
+      label: "Show on the home page",
+      defaultValue: false,
+      admin: {
+        position: "sidebar",
+        description:
+          "The home page shows up to seven projects. Tick this to put one there; if fewer than seven are ticked, the newest projects fill the rest.",
+      },
+    },
+    {
       name: "order",
       type: "number",
       required: true,

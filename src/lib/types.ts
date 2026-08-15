@@ -13,6 +13,62 @@ export type Accent = "starlight" | "comet" | "nebula" | "cranberry";
 
 export type LegacyPhoto = { src: string; width: number; height: number };
 
+export type Picture = { src: string; alt: string };
+
+/** An avenue of service, as edited in the CMS. Drives the home page card deck. */
+export type AvenueEntry = {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  image: Picture;
+  accent: Accent;
+};
+
+export type AvenueTag = { name: string; slug: string; accent: Accent };
+
+export type BlogSummary = {
+  id: string;
+  name: string;
+  slug: string;
+  date: string;
+  summary: string;
+  image: Picture;
+  avenue: AvenueTag | null;
+};
+
+/** `details` is a Lexical document, rendered by RichText on the client. */
+export type BlogPost = BlogSummary & {
+  details: unknown;
+  gallery: Picture[];
+};
+
+export type EventStatus = "upcoming" | "ongoing" | "past";
+
+export type EventSummary = {
+  id: string;
+  name: string;
+  slug: string;
+  date: string;
+  location: string;
+  status: EventStatus;
+  image: Picture;
+  registrationLink: string;
+};
+
+export type EventEntry = EventSummary & {
+  description: unknown;
+  gallery: Picture[];
+};
+
+/** The opening curtain on the home page. Empty `panels` means "don't play it". */
+export type HomeIntroData = {
+  enabled: boolean;
+  headline: string;
+  logo: string;
+  panels: Picture[];
+};
+
 export type SiteInfo = {
   name: string;
   shortName: string;
@@ -39,7 +95,13 @@ export type Member = {
   name: string;
   role: string;
   image: string;
+  /** Short introduction shown on the board card. Empty for most general members. */
+  bio: string;
+  /** Rotaract year this board served, as its starting year (July–June term). */
+  year: number | null;
 };
+
+export type FaqItem = { id: string; question: string; answer: string };
 
 export type Project = {
   title: string;
@@ -48,6 +110,16 @@ export type Project = {
   image: string;
   /** ISO date string — month/year granularity. */
   date: string;
+  /** Where the home page card points — a post slug, or "" for the blog index. */
+  postSlug: string;
+  featured: boolean;
+};
+
+/** A board's group photograph, paired with the members of the same year. */
+export type BoardYear = {
+  year: number;
+  photo: Picture;
+  caption: string;
 };
 
 export type AvenueInfo = {
@@ -176,6 +248,8 @@ export type FooterData = {
   brandSymbol: string;
   brandLine: string;
   columns: FooterColumn[];
+  /** The short footer nav — CMS footer links when set, the curated list otherwise. */
+  menu: NavLink[];
   wordmark: string;
   copyright: string;
   note: string;

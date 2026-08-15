@@ -50,8 +50,22 @@ export const NAV_LINKS: NavLink[] = [
   { label: "About", href: "/about" },
   { label: "Team", href: "/team" },
   { label: "Projects", href: "/projects" },
+  { label: "Events", href: "/events" },
+  { label: "Blog", href: "/blog" },
   { label: "Legacy", href: "/legacy" },
   { label: "Contact", href: "/contact" },
+];
+
+/**
+ * The footer keeps a deliberately shorter list than the header — the contact
+ * details have their own column beside it, and a full site index at the bottom
+ * of every page is noise rather than navigation.
+ */
+export const FOOTER_LINKS: NavLink[] = [
+  { label: "About", href: "/about" },
+  { label: "Projects", href: "/projects" },
+  { label: "Events", href: "/events" },
+  { label: "Blog", href: "/blog" },
 ];
 
 export const header = {

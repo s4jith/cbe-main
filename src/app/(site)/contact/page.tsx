@@ -7,6 +7,7 @@ import FormShell from "@/components/FormShell";
 import Reveal from "@/components/Reveal";
 import { cssColor } from "@/lib/theme";
 import { getContactContent, getSiteSettings } from "@/lib/content";
+import { submitContact } from "./actions";
 
 export async function generateMetadata(): Promise<Metadata> {
   const page = await getContactContent();
@@ -44,7 +45,12 @@ export default async function ContactPage() {
           </div>
         </Section>
 
-        <Section surface={page.form.surface} defaultBackground="var(--color-mist)" className="py-20 max-md:py-12">
+        <Section
+          id="say-hello"
+          surface={page.form.surface}
+          defaultBackground="var(--color-mist)"
+          className="scroll-mt-28 py-20 max-md:py-12"
+        >
           <div className="shell">
             <Reveal y={40}>
               <div
@@ -59,7 +65,7 @@ export default async function ContactPage() {
                     {page.form.intro}
                   </p>
                 )}
-                <FormShell action={site.forms.contact} fields={page.form.fields} chrome={page.form.chrome} />
+                <FormShell submit={submitContact} fields={page.form.fields} chrome={page.form.chrome} />
               </div>
             </Reveal>
           </div>

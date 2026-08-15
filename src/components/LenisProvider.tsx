@@ -2,7 +2,11 @@
 
 import { useEffect, type ReactNode } from "react";
 
-type Lockable = { stop: () => void; start: () => void };
+type Lockable = {
+  stop: () => void;
+  start: () => void;
+  scrollTo: (target: number, options?: { duration?: number }) => void;
+};
 
 let instance: Lockable | null = null;
 
@@ -14,6 +18,16 @@ let instance: Lockable | null = null;
 export const smoothScroll = {
   stop: () => instance?.stop(),
   start: () => instance?.start(),
+  /**
+   * Scroll to the top. Returns false when Lenis is not running — reduced-motion
+   * visitors never load it — so the caller can fall back to the native scroll
+   * instead of silently doing nothing.
+   */
+  toTop: (duration = 1.2): boolean => {
+    if (!instance) return false;
+    instance.scrollTo(0, { duration });
+    return true;
+  },
 };
 
 /**

@@ -4,6 +4,8 @@ import { useRef } from "react";
 import Image from "next/image";
 import { m, useScroll, useTransform, useReducedMotion } from "framer-motion";
 import { PillButton, ArrowButton } from "@/components/Buttons";
+import GridBackdrop from "@/components/GridBackdrop";
+import BuildingBlocks from "@/components/BuildingBlocks";
 import type { HeroCard } from "@/lib/types";
 
 const EASE = [0.22, 0.61, 0.36, 1] as const;
@@ -20,6 +22,7 @@ export default function Hero({
   feature,
   primary,
   secondary,
+  backdrop = false,
 }: {
   eyebrow: string;
   /** Two lines: the statement, then the emphasis (set in display italic). */
@@ -29,6 +32,8 @@ export default function Hero({
   feature?: HeroCard;
   primary: { label: string; href: string };
   secondary: { label: string; href: string };
+  /** Ruled grid and the block mark — the home page opening only. */
+  backdrop?: boolean;
 }) {
   const reduced = useReducedMotion();
   const ref = useRef<HTMLDivElement>(null);
@@ -53,12 +58,14 @@ export default function Hero({
 
   return (
     <section ref={ref} className="relative overflow-hidden pt-32 max-lg:pt-28">
-      <div className="shell">
+      {backdrop && <GridBackdrop />}
+      <div className="shell relative">
         {/* Mobile-first: a plain stack. The 12-column track only exists from lg up,
             where there is room for its gutters. */}
         <div className="grid gap-y-10 lg:grid-cols-12 lg:items-center lg:gap-x-10 lg:gap-y-12">
           {/* --- type column ------------------------------------------------ */}
           <div className="lg:col-span-7 xl:col-span-6">
+            {backdrop && <BuildingBlocks className="mb-8 max-lg:mb-6" />}
             <m.p {...rise(0.35)} className="eyebrow text-ink-soft">
               {eyebrow}
             </m.p>

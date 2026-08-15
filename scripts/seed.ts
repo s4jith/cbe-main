@@ -61,6 +61,11 @@ async function uploadImage(publicPath: string, alt: string): Promise<string> {
   return doc.id as string;
 }
 
+// The legacy member list carries no term of its own, so it seeds as the board
+// current at the time of the import; past boards are added in the admin.
+const { currentRotaractYear } = await import("../src/collections/Members");
+const SEED_YEAR = currentRotaractYear();
+
 async function isEmpty(collection: "members" | "projects" | "flagship-projects") {
   const { totalDocs } = await payload.count({ collection });
   return totalDocs === 0;
@@ -78,6 +83,7 @@ if (await isEmpty("members")) {
         role: m.role,
         memberType: "board",
         photo: await uploadImage(m.image, m.name),
+        year: SEED_YEAR,
         order: (order += 10),
       },
       context: ctx(),
@@ -92,6 +98,7 @@ if (await isEmpty("members")) {
         role: m.role,
         memberType: "general",
         photo: await uploadImage(m.image, m.name),
+        year: SEED_YEAR,
         order: (order += 10),
       },
       context: ctx(),

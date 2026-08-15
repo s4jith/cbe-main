@@ -5,6 +5,7 @@ import { mongooseAdapter } from "@payloadcms/db-mongodb";
 import { vercelBlobStorage } from "@payloadcms/storage-vercel-blob";
 import { cloudStoragePlugin } from "@payloadcms/plugin-cloud-storage";
 import { lexicalEditor } from "@payloadcms/richtext-lexical";
+import { resendAdapter } from "@payloadcms/email-resend";
 import sharp from "sharp";
 
 import { Users } from "./collections/Users";
@@ -13,6 +14,18 @@ import { Members } from "./collections/Members";
 import { Projects } from "./collections/Projects";
 import { FlagshipProjects } from "./collections/FlagshipProjects";
 import { LegacyPhotos } from "./collections/LegacyPhotos";
+import { Avenues } from "./collections/Avenues";
+import { Blogs } from "./collections/Blogs";
+import { Events } from "./collections/Events";
+import { ContactSubmissions } from "./collections/ContactSubmissions";
+import { Faqs } from "./collections/Faqs";
+import { BoardYears } from "./collections/BoardYears";
+import { HomeIntro } from "./globals/HomeIntro";
+import { SiteSettings } from "./globals/SiteSettings";
+import {
+  AdminContactEmailTemplate,
+  UserContactEmailTemplate,
+} from "./globals/ContactEmailTemplates";
 import { cloudinaryAdapter } from "./lib/cloudinaryAdapter";
 
 const filename = fileURLToPath(import.meta.url);
@@ -39,7 +52,32 @@ export default buildConfig({
     },
   },
   editor: lexicalEditor(),
-  collections: [Projects, FlagshipProjects, Members, LegacyPhotos, Media, Users],
+  collections: [
+    Projects,
+    FlagshipProjects,
+    Events,
+    Blogs,
+    Avenues,
+    Members,
+    BoardYears,
+    LegacyPhotos,
+    Faqs,
+    Media,
+    ContactSubmissions,
+    Users,
+  ],
+  globals: [HomeIntro, SiteSettings, AdminContactEmailTemplate, UserContactEmailTemplate],
+  // Resend is only wired up when a key is present, so local development and CI
+  // fall back to Payload's console transport instead of failing to boot.
+  ...(process.env.RESEND_API_KEY
+    ? {
+        email: resendAdapter({
+          defaultFromAddress: process.env.EMAIL_FROM || "onboarding@resend.dev",
+          defaultFromName: "Rotaract Coimbatore Main",
+          apiKey: process.env.RESEND_API_KEY,
+        }),
+      }
+    : {}),
   secret: process.env.PAYLOAD_SECRET || "",
   typescript: {
     outputFile: path.resolve(dirname, "payload-types.ts"),

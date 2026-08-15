@@ -69,9 +69,15 @@ export interface Config {
   collections: {
     projects: Project;
     'flagship-projects': FlagshipProject;
+    events: Event;
+    blogs: Blog;
+    avenues: Avenue;
     members: Member;
+    'board-years': BoardYear;
     'legacy-photos': LegacyPhoto;
+    faqs: Faq;
     media: Media;
+    'contact-submissions': ContactSubmission;
     users: User;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
@@ -82,9 +88,15 @@ export interface Config {
   collectionsSelect: {
     projects: ProjectsSelect<false> | ProjectsSelect<true>;
     'flagship-projects': FlagshipProjectsSelect<false> | FlagshipProjectsSelect<true>;
+    events: EventsSelect<false> | EventsSelect<true>;
+    blogs: BlogsSelect<false> | BlogsSelect<true>;
+    avenues: AvenuesSelect<false> | AvenuesSelect<true>;
     members: MembersSelect<false> | MembersSelect<true>;
+    'board-years': BoardYearsSelect<false> | BoardYearsSelect<true>;
     'legacy-photos': LegacyPhotosSelect<false> | LegacyPhotosSelect<true>;
+    faqs: FaqsSelect<false> | FaqsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    'contact-submissions': ContactSubmissionsSelect<false> | ContactSubmissionsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -95,8 +107,18 @@ export interface Config {
     defaultIDType: string;
   };
   fallbackLocale: null;
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    'home-intro': HomeIntro;
+    'site-settings': SiteSetting;
+    'admin-contact-email': AdminContactEmail;
+    'user-contact-email': UserContactEmail;
+  };
+  globalsSelect: {
+    'home-intro': HomeIntroSelect<false> | HomeIntroSelect<true>;
+    'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
+    'admin-contact-email': AdminContactEmailSelect<false> | AdminContactEmailSelect<true>;
+    'user-contact-email': UserContactEmailSelect<false> | UserContactEmailSelect<true>;
+  };
   locale: null;
   widgets: {
     collections: CollectionsWidget;
@@ -142,6 +164,14 @@ export interface Project {
    */
   date: string;
   /**
+   * Optional. The blog post telling this project's story — a project card on the home page opens it. Without one the card falls back to the blog index.
+   */
+  relatedPost?: (string | null) | Blog;
+  /**
+   * The home page shows up to seven projects. Tick this to put one there; if fewer than seven are ticked, the newest projects fill the rest.
+   */
+  featured?: boolean | null;
+  /**
    * Lower numbers appear first within the avenue.
    */
   order: number;
@@ -173,6 +203,97 @@ export interface Media {
   focalY?: number | null;
 }
 /**
+ * Write-ups for the blog. The hero image and card summary are what show in the list; everything else appears once a reader opens the post.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "blogs".
+ */
+export interface Blog {
+  id: string;
+  name: string;
+  /**
+   * The web address for this entry. Leave blank and it is built from the name.
+   */
+  slug?: string | null;
+  /**
+   * The image on the blog card and at the top of the post.
+   */
+  heroImage: string | Media;
+  /**
+   * One or two sentences. This is all a reader sees on the card before clicking through.
+   */
+  cardSummary: string;
+  /**
+   * The post itself — headings, links and formatting all work here.
+   */
+  details: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  /**
+   * Up to three photographs, shown as a gallery at the end of the post.
+   */
+  gallery?:
+    | {
+        image: string | Media;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Which avenue this post belongs to. It surfaces on that avenue's card in the home page deck.
+   */
+  avenue: string | Avenue;
+  date: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * The five avenues of service. These are the cards in the home page deck and the tags on blog posts — the set rarely changes, but the words and photography here are yours to edit.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "avenues".
+ */
+export interface Avenue {
+  id: string;
+  /**
+   * e.g. Community Service.
+   */
+  name: string;
+  /**
+   * The web address for this entry. Leave blank and it is built from the name.
+   */
+  slug?: string | null;
+  /**
+   * The line that appears on the back of the card when it is turned over.
+   */
+  description: string;
+  /**
+   * The photograph on the face of the card.
+   */
+  image: string | Media;
+  /**
+   * The marker colour for this avenue. Drawn from the site palette.
+   */
+  accentColor: 'starlight' | 'cranberry' | 'comet' | 'nebula';
+  /**
+   * Order in the deck — lower numbers sit on top (0, 1, 2 …).
+   */
+  order: number;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * The spotlight tabs in the “Built to break barriers” section of the home page.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -199,6 +320,66 @@ export interface FlagshipProject {
   createdAt: string;
 }
 /**
+ * Everything on the events page. Upcoming events lead the page; past ones fall into the archive below.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "events".
+ */
+export interface Event {
+  id: string;
+  name: string;
+  /**
+   * The web address for this entry. Leave blank and it is built from the name.
+   */
+  slug?: string | null;
+  /**
+   * The full write-up shown on the event's own page.
+   */
+  description: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  /**
+   * The lead photograph — used on the event card and at the top of its page.
+   */
+  heroImage: string | Media;
+  /**
+   * Photographs from the event, shown as a gallery on its page.
+   */
+  gallery?:
+    | {
+        image: string | Media;
+        id?: string | null;
+      }[]
+    | null;
+  date: string;
+  /**
+   * Where it happens — venue, or city.
+   */
+  location: string;
+  /**
+   * Controls where the event appears on the page.
+   */
+  status: 'upcoming' | 'ongoing' | 'past';
+  /**
+   * Optional. A registration or RSVP link — the button only appears when this is filled in.
+   */
+  registrationLink?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * The team shown on the Team page and the home page teaser. Add, edit or delete a member here — Priority controls the order they appear in.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -215,11 +396,42 @@ export interface Member {
    * Board members show name + designation on the Team page. General members show in the name-only circle grid further down.
    */
   memberType: 'board' | 'general';
+  /**
+   * A sentence or two shown on the board card — who they are and what they bring. Board members without one simply show their name and designation.
+   */
+  bio?: string | null;
   photo: string | Media;
+  /**
+   * The year this board served, entered as the starting year — a term running July 2025 to June 2026 is 2025. Drives the year tabs on the home page.
+   */
+  year: number;
   /**
    * Display order on the website — lower numbers appear first (0, 1, 2 …).
    */
   order: number;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * The group photograph for each board. The year tabs on the home page are built from these, and each one pairs with the members carrying the same year.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "board-years".
+ */
+export interface BoardYear {
+  id: string;
+  /**
+   * The starting year of the term — a board serving July 2026 to June 2027 is 2026. Must match the year set on that board's members.
+   */
+  year: number;
+  /**
+   * The whole board in one photograph. A wide, landscape shot works best.
+   */
+  groupPhoto: string | Media;
+  /**
+   * Optional line under the photograph — e.g. the installation venue.
+   */
+  caption?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -246,6 +458,53 @@ export interface LegacyPhoto {
   height?: number | null;
   focalX?: number | null;
   focalY?: number | null;
+}
+/**
+ * The questions answered at the bottom of the home page. Keep the answers short — one short paragraph reads best in the accordion.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "faqs".
+ */
+export interface Faq {
+  id: string;
+  question: string;
+  answer: string;
+  /**
+   * Lower numbers appear first (0, 1, 2 …).
+   */
+  order: number;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Messages sent through the contact form on the website.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contact-submissions".
+ */
+export interface ContactSubmission {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string | null;
+  message: string;
+  /**
+   * For your own triage — not shown to the sender.
+   */
+  status?: ('new' | 'replied' | 'archived') | null;
+  /**
+   * Whether the notification and acknowledgement actually sent.
+   */
+  delivery?: {
+    adminEmailSent?: boolean | null;
+    userEmailSent?: boolean | null;
+    /**
+     * Set when Resend rejected the send.
+     */
+    error?: string | null;
+  };
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * People who can sign in and edit the website.
@@ -309,16 +568,40 @@ export interface PayloadLockedDocument {
         value: string | FlagshipProject;
       } | null)
     | ({
+        relationTo: 'events';
+        value: string | Event;
+      } | null)
+    | ({
+        relationTo: 'blogs';
+        value: string | Blog;
+      } | null)
+    | ({
+        relationTo: 'avenues';
+        value: string | Avenue;
+      } | null)
+    | ({
         relationTo: 'members';
         value: string | Member;
+      } | null)
+    | ({
+        relationTo: 'board-years';
+        value: string | BoardYear;
       } | null)
     | ({
         relationTo: 'legacy-photos';
         value: string | LegacyPhoto;
       } | null)
     | ({
+        relationTo: 'faqs';
+        value: string | Faq;
+      } | null)
+    | ({
         relationTo: 'media';
         value: string | Media;
+      } | null)
+    | ({
+        relationTo: 'contact-submissions';
+        value: string | ContactSubmission;
       } | null)
     | ({
         relationTo: 'users';
@@ -376,6 +659,8 @@ export interface ProjectsSelect<T extends boolean = true> {
   description?: T;
   image?: T;
   date?: T;
+  relatedPost?: T;
+  featured?: T;
   order?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -396,14 +681,84 @@ export interface FlagshipProjectsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "events_select".
+ */
+export interface EventsSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  description?: T;
+  heroImage?: T;
+  gallery?:
+    | T
+    | {
+        image?: T;
+        id?: T;
+      };
+  date?: T;
+  location?: T;
+  status?: T;
+  registrationLink?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "blogs_select".
+ */
+export interface BlogsSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  heroImage?: T;
+  cardSummary?: T;
+  details?: T;
+  gallery?:
+    | T
+    | {
+        image?: T;
+        id?: T;
+      };
+  avenue?: T;
+  date?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "avenues_select".
+ */
+export interface AvenuesSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  description?: T;
+  image?: T;
+  accentColor?: T;
+  order?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "members_select".
  */
 export interface MembersSelect<T extends boolean = true> {
   name?: T;
   role?: T;
   memberType?: T;
+  bio?: T;
   photo?: T;
+  year?: T;
   order?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "board-years_select".
+ */
+export interface BoardYearsSelect<T extends boolean = true> {
+  year?: T;
+  groupPhoto?: T;
+  caption?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -427,6 +782,17 @@ export interface LegacyPhotosSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "faqs_select".
+ */
+export interface FaqsSelect<T extends boolean = true> {
+  question?: T;
+  answer?: T;
+  order?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media_select".
  */
 export interface MediaSelect<T extends boolean = true> {
@@ -442,6 +808,26 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contact-submissions_select".
+ */
+export interface ContactSubmissionsSelect<T extends boolean = true> {
+  name?: T;
+  email?: T;
+  phone?: T;
+  message?: T;
+  status?: T;
+  delivery?:
+    | T
+    | {
+        adminEmailSent?: T;
+        userEmailSent?: T;
+        error?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -506,6 +892,229 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * The opening sequence on the home page, and the headline it reveals. Shown once per visit.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "home-intro".
+ */
+export interface HomeIntro {
+  id: string;
+  /**
+   * Turn this off to send visitors straight to the home page.
+   */
+  enabled?: boolean | null;
+  /**
+   * The line the home page opens with once the curtain lifts.
+   */
+  headline: string;
+  /**
+   * The mark the panels close onto. Leave empty to use the club logo already in the header.
+   */
+  logo?: (string | null) | Media;
+  /**
+   * Photographs that slide past on the panels — five or more looks best. Fewer than two skips the intro.
+   */
+  panelImages?:
+    | {
+        image: string | Media;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Footer links, socials, contact details and copyright. Anything left blank falls back to what the site already ships with.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings".
+ */
+export interface SiteSetting {
+  id: string;
+  email?: string | null;
+  phone?: string | null;
+  address?: string | null;
+  /**
+   * The 'get involved' column. Leave empty to keep the links the site ships with.
+   */
+  footerLinks?:
+    | {
+        label: string;
+        url: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Supports {year} and {name} — e.g. “© {year} {name}. All rights reserved.”
+   */
+  copyrightText?: string | null;
+  /**
+   * Shown in the footer and on the contact page.
+   */
+  socialLinks?:
+    | {
+        platform: 'Instagram' | 'Facebook' | 'LinkedIn' | 'X' | 'YouTube' | 'WhatsApp';
+        url: string;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * What lands in the club inbox when somebody uses the contact form.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "admin-contact-email".
+ */
+export interface AdminContactEmail {
+  id: string;
+  /**
+   * Subject line. You can use {name}, {email}, {phone}, {message} and {date} — they are replaced with the sender's details.
+   */
+  subject: string;
+  /**
+   * Optional banner across the top of the email. Wide and short works best.
+   */
+  headerImage?: (string | null) | Media;
+  /**
+   * The body of the email. You can use {name}, {email}, {phone}, {message} and {date} — they are replaced with the sender's details.
+   */
+  richTextBody: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  /**
+   * Small print under the message — e.g. why they are receiving this.
+   */
+  footerNote?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * The confirmation the sender receives after using the contact form.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "user-contact-email".
+ */
+export interface UserContactEmail {
+  id: string;
+  /**
+   * Subject line. You can use {name}, {email}, {phone}, {message} and {date} — they are replaced with the sender's details.
+   */
+  subject: string;
+  /**
+   * Optional banner across the top of the email. Wide and short works best.
+   */
+  headerImage?: (string | null) | Media;
+  /**
+   * The body of the email. You can use {name}, {email}, {phone}, {message} and {date} — they are replaced with the sender's details.
+   */
+  richTextBody: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  /**
+   * Small print under the message — e.g. why they are receiving this.
+   */
+  footerNote?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "home-intro_select".
+ */
+export interface HomeIntroSelect<T extends boolean = true> {
+  enabled?: T;
+  headline?: T;
+  logo?: T;
+  panelImages?:
+    | T
+    | {
+        image?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings_select".
+ */
+export interface SiteSettingsSelect<T extends boolean = true> {
+  email?: T;
+  phone?: T;
+  address?: T;
+  footerLinks?:
+    | T
+    | {
+        label?: T;
+        url?: T;
+        id?: T;
+      };
+  copyrightText?: T;
+  socialLinks?:
+    | T
+    | {
+        platform?: T;
+        url?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "admin-contact-email_select".
+ */
+export interface AdminContactEmailSelect<T extends boolean = true> {
+  subject?: T;
+  headerImage?: T;
+  richTextBody?: T;
+  footerNote?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "user-contact-email_select".
+ */
+export interface UserContactEmailSelect<T extends boolean = true> {
+  subject?: T;
+  headerImage?: T;
+  richTextBody?: T;
+  footerNote?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

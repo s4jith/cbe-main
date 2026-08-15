@@ -11,18 +11,22 @@ export default function Section({
   defaultBackground,
   className = "",
   style,
+  id,
   children,
 }: {
   surface: Surface;
   defaultBackground?: string;
   className?: string;
   style?: CSSProperties;
+  /** Anchor target, for in-page links such as the hero's community CTA. */
+  id?: string;
   children: ReactNode;
 }) {
   if (surface.hidden) return null;
   const background = cssColor(surface.background, defaultBackground as string);
   return (
     <section
+      {...(id ? { id } : {})}
       className={`${surface.starfield ? "starfield " : ""}${className}`}
       style={{ ...(background ? { backgroundColor: background } : {}), ...style }}
     >

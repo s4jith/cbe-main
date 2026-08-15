@@ -27,7 +27,7 @@ export async function generateMetadata(): Promise<Metadata> {
 // client, which keeps this route statically prerendered under the layout's ISR
 // window instead of hitting MongoDB on every request.
 export default async function ProjectsPage() {
-  const site = getSiteSettings();
+  const site = await getSiteSettings();
   const home = getHomeContent();
   const page = getProjectsContent();
   const projects = await getProjects();

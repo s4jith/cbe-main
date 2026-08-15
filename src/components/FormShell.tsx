@@ -6,32 +6,62 @@ import { cssColor } from "@/lib/theme";
 
 type Status = "idle" | "sending" | "sent" | "error";
 
+export type SubmitResult = { ok: true } | { ok: false; error: string };
+
 /**
- * Posts FormData to a Google Apps Script endpoint, preserves the legacy _honeypot
- * spam trap, and renders whichever questions the CMS defines.
+ * Renders whichever questions the CMS defines and preserves the legacy _honeypot
+ * spam trap.
+ *
+ * Two ways to submit: `submit` runs a server action (contact, which stores the
+ * message in Payload and sends the emails), and `action` posts to a Google Apps
+ * Script endpoint (join and blood donor, still on the old sheets). `submit` wins
+ * when both are given.
  */
 export default function FormShell({
   action,
+  submit,
   fields,
   chrome,
   consentLabel,
 }: {
-  action: string;
+  action?: string;
+  submit?: (data: FormData) => Promise<SubmitResult>;
   fields: FormFieldData[];
   chrome: FormChrome;
   consentLabel?: string;
 }) {
   const [status, setStatus] = useState<Status>("idle");
+  const [error, setError] = useState<string>("");
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = e.currentTarget;
     const data = new FormData(form);
+    setStatus("sending");
+    setError("");
+
+    if (submit) {
+      // The honeypot travels with the payload — the action decides what to do
+      // with it, so a bot never learns it was caught.
+      try {
+        const result = await submit(data);
+        if (result.ok) {
+          setStatus("sent");
+          form.reset();
+        } else {
+          setError(result.error);
+          setStatus("error");
+        }
+      } catch {
+        setStatus("error");
+      }
+      return;
+    }
+
     if (data.get("_honeypot")) return;
     data.delete("_honeypot");
-    setStatus("sending");
     try {
-      await fetch(action, { method: "POST", body: data });
+      await fetch(action ?? "", { method: "POST", body: data });
       setStatus("sent");
       form.reset();
     } catch {
@@ -88,7 +118,7 @@ export default function FormShell({
       )}
       {status === "error" && (
         <p className="text-[16px] font-bold text-cranberry" role="alert">
-          {chrome.errorMessage}
+          {error || chrome.errorMessage}
         </p>
       )}
     </form>

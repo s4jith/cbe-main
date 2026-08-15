@@ -4,8 +4,20 @@ import config from "@payload-config";
 import * as D from "@/lib/defaults";
 import type {
   AboutContent,
+  Accent,
+  AvenueEntry,
+  AvenueTag,
+  BlogPost,
+  BlogSummary,
+  BoardYear,
   ButtonData,
   ContactContent,
+  EventEntry,
+  EventStatus,
+  EventSummary,
+  FaqItem,
+  HomeIntroData,
+  Picture,
   FlagshipItem,
   FooterData,
   FormPageContent,
@@ -33,6 +45,34 @@ function mediaUrl(media: unknown): string {
     if (typeof url === "string") return url;
   }
   return "";
+}
+
+/** An upload resolved to src + alt, or null when the relationship is unset. */
+function picture(media: unknown, fallbackAlt = ""): Picture | null {
+  const src = mediaUrl(media);
+  if (!src) return null;
+  const alt =
+    media && typeof media === "object" && "alt" in media && typeof media.alt === "string"
+      ? media.alt
+      : "";
+  return { src, alt: alt || fallbackAlt };
+}
+
+/** Flatten an array-of-uploads field, dropping any row whose image went missing. */
+function gallery(rows: unknown, fallbackAlt: string): Picture[] {
+  if (!Array.isArray(rows)) return [];
+  return rows
+    .map((row) =>
+      picture(
+        row && typeof row === "object" && "image" in row ? (row as { image: unknown }).image : null,
+        fallbackAlt,
+      ),
+    )
+    .filter((p): p is Picture => p !== null);
+}
+
+function isoDate(value: unknown): string {
+  return typeof value === "string" ? value : "";
 }
 
 /** Replace {tokens} in copy with live site values. */
@@ -81,9 +121,23 @@ function sSeo(seo: { title?: string; description?: string; noIndex?: boolean }):
   return { title: seo.title, description: seo.description, noIndex: seo.noIndex ?? false };
 }
 
-export function getSiteSettings(): SiteInfo {
-  const phone = D.SITE.phone;
-  const email = D.SITE.email;
+/**
+ * Site-wide details, with anything set in the Site Settings global winning over
+ * the shipped defaults. Reading the global is what makes this async — every
+ * blank field still falls back to src/lib/defaults.ts, so an untouched CMS
+ * renders exactly what the site shipped with.
+ */
+export const getSiteSettings = cache(async (): Promise<SiteInfo> => {
+  const payload = await client();
+  const cms = await payload.findGlobal({ slug: "site-settings", depth: 0 }).catch(() => null);
+
+  const phone = cms?.phone || D.SITE.phone;
+  const email = cms?.email || D.SITE.email;
+  const socials =
+    cms?.socialLinks && cms.socialLinks.length > 0
+      ? cms.socialLinks.map((s) => ({ label: s.platform, href: s.url }))
+      : D.SITE.socials;
+
   return {
     name: D.SITE.name,
     shortName: D.SITE.shortName,
@@ -101,11 +155,11 @@ export function getSiteSettings(): SiteInfo {
     email,
     emailHref: `mailto:${email}`,
     shareImage: D.BRAND.shareImage,
-    socials: D.SITE.socials,
+    socials,
     forms: D.SITE.forms,
     prayer: D.SITE.prayer,
   };
-}
+});
 
 export function getHeader(): HeaderData {
   return {
@@ -120,9 +174,20 @@ export function getHeader(): HeaderData {
   };
 }
 
-export function getFooter(): FooterData {
+export const getFooter = cache(async (): Promise<FooterData> => {
+  const payload = await client();
+  const cms = await payload.findGlobal({ slug: "site-settings", depth: 0 }).catch(() => null);
   const header = getHeader();
-  const site = getSiteSettings();
+  const site = await getSiteSettings();
+
+  // The "get involved" column is the only editable one — the others are derived
+  // from the nav, the socials and the contact details, so editing them here
+  // would just be a second place for the same links to drift out of sync.
+  const editableLinks =
+    cms?.footerLinks && cms.footerLinks.length > 0
+      ? cms.footerLinks.map((l) => ({ label: l.label, href: l.url }))
+      : null;
+
   const columns = D.footer.columns.map((c) => {
     if (c.source === "menu") return { title: c.title, links: header.items };
     if (c.source === "socials") return { title: c.title, links: site.socials };
@@ -135,7 +200,7 @@ export function getFooter(): FooterData {
         ].filter((l) => l.label),
       };
     }
-    return { title: c.title, links: c.links };
+    return { title: c.title, links: editableLinks ?? c.links };
   });
 
   return {
@@ -143,12 +208,13 @@ export function getFooter(): FooterData {
     brandSymbol: D.footer.brandSymbol,
     brandLine: D.footer.brandLine,
     columns,
+    menu: editableLinks ?? D.FOOTER_LINKS,
     wordmark: D.footer.wordmark,
-    copyright: D.footer.copyright,
+    copyright: cms?.copyrightText || D.footer.copyright,
     note: site.tagline.split(".")[0] + ".",
     starfield: true,
   };
-}
+});
 
 export function getShared(): SharedContent {
   return {
@@ -185,7 +251,20 @@ export const getMembers = cache(async (memberType: "board" | "general"): Promise
     name: d.name,
     role: d.role,
     image: mediaUrl(d.photo),
+    bio: d.bio ?? "",
+    year: typeof d.year === "number" ? d.year : null,
   }));
+});
+
+export const getFaqs = cache(async (): Promise<FaqItem[]> => {
+  const payload = await client();
+  const { docs } = await payload.find({
+    collection: "faqs",
+    sort: "order",
+    pagination: false,
+    depth: 0,
+  });
+  return docs.map((d) => ({ id: String(d.id), question: d.question, answer: d.answer }));
 });
 
 export const getProjects = cache(async (): Promise<Project[]> => {
@@ -202,6 +281,42 @@ export const getProjects = cache(async (): Promise<Project[]> => {
     description: d.description,
     image: mediaUrl(d.image),
     date: typeof d.date === "string" ? d.date : "",
+    postSlug:
+      d.relatedPost && typeof d.relatedPost === "object" && "slug" in d.relatedPost
+        ? ((d.relatedPost as { slug?: string }).slug ?? "")
+        : "",
+    featured: Boolean(d.featured),
+  }));
+});
+
+/**
+ * The seven projects on the home page: the ones explicitly ticked first, then
+ * the most recent to make up the number. Editors get control without having to
+ * tick exactly seven boxes for the section to look right.
+ */
+export const getFeaturedProjects = cache(async (limit = 7): Promise<Project[]> => {
+  const projects = await getProjects();
+  const featured = projects.filter((p) => p.featured);
+  if (featured.length >= limit) return featured.slice(0, limit);
+
+  const rest = projects
+    .filter((p) => !p.featured)
+    .sort((a, b) => b.date.localeCompare(a.date));
+  return [...featured, ...rest].slice(0, limit);
+});
+
+export const getBoardYears = cache(async (): Promise<BoardYear[]> => {
+  const payload = await client();
+  const { docs } = await payload.find({
+    collection: "board-years",
+    sort: "-year",
+    pagination: false,
+    depth: 1,
+  });
+  return docs.map((d) => ({
+    year: d.year,
+    photo: picture(d.groupPhoto, `The ${d.year} board`) ?? PLACEHOLDER,
+    caption: d.caption ?? "",
   }));
 });
 
@@ -243,6 +358,154 @@ export const getLegacyPhotos = cache(async (): Promise<LegacyPhoto[]> => {
 export function getVoices(): Voice[] {
   return [];
 }
+
+// ------------------------------------------------------------------ avenues, blogs, events
+
+const PLACEHOLDER: Picture = { src: "", alt: "" };
+
+function avenueTag(avenue: unknown): AvenueTag | null {
+  if (!avenue || typeof avenue !== "object" || !("name" in avenue)) return null;
+  const a = avenue as { name?: unknown; slug?: unknown; accentColor?: unknown };
+  if (typeof a.name !== "string") return null;
+  return {
+    name: a.name,
+    slug: typeof a.slug === "string" ? a.slug : "",
+    accent: (typeof a.accentColor === "string" ? a.accentColor : "starlight") as Accent,
+  };
+}
+
+export const getAvenues = cache(async (): Promise<AvenueEntry[]> => {
+  const payload = await client();
+  const { docs } = await payload.find({
+    collection: "avenues",
+    sort: "order",
+    pagination: false,
+    depth: 1,
+  });
+  return docs.map((d) => ({
+    id: String(d.id),
+    name: d.name,
+    slug: d.slug ?? "",
+    description: d.description,
+    image: picture(d.image, d.name) ?? PLACEHOLDER,
+    accent: (d.accentColor ?? "starlight") as Accent,
+  }));
+});
+
+function toBlogSummary(d: {
+  id: string | number;
+  name: string;
+  slug?: string | null;
+  date: string;
+  cardSummary: string;
+  heroImage: unknown;
+  avenue: unknown;
+}): BlogSummary {
+  return {
+    id: String(d.id),
+    name: d.name,
+    slug: d.slug ?? "",
+    date: isoDate(d.date),
+    summary: d.cardSummary,
+    image: picture(d.heroImage, d.name) ?? PLACEHOLDER,
+    avenue: avenueTag(d.avenue),
+  };
+}
+
+export const getBlogs = cache(async (): Promise<BlogSummary[]> => {
+  const payload = await client();
+  const { docs } = await payload.find({
+    collection: "blogs",
+    sort: "-date",
+    pagination: false,
+    depth: 1,
+  });
+  return docs.map(toBlogSummary);
+});
+
+export const getBlogBySlug = cache(async (slug: string): Promise<BlogPost | null> => {
+  const payload = await client();
+  const { docs } = await payload.find({
+    collection: "blogs",
+    where: { slug: { equals: slug } },
+    limit: 1,
+    // depth 2 so the avenue relationship's own image resolves alongside it.
+    depth: 2,
+  });
+  const doc = docs[0];
+  if (!doc) return null;
+  return {
+    ...toBlogSummary(doc),
+    details: doc.details ?? null,
+    gallery: gallery(doc.gallery, doc.name),
+  };
+});
+
+function toEventSummary(d: {
+  id: string | number;
+  name: string;
+  slug?: string | null;
+  date: string;
+  location: string;
+  status: string;
+  heroImage: unknown;
+  registrationLink?: string | null;
+}): EventSummary {
+  return {
+    id: String(d.id),
+    name: d.name,
+    slug: d.slug ?? "",
+    date: isoDate(d.date),
+    location: d.location,
+    status: (d.status ?? "upcoming") as EventStatus,
+    image: picture(d.heroImage, d.name) ?? PLACEHOLDER,
+    registrationLink: d.registrationLink ?? "",
+  };
+}
+
+export const getEvents = cache(async (): Promise<EventSummary[]> => {
+  const payload = await client();
+  const { docs } = await payload.find({
+    collection: "events",
+    sort: "-date",
+    pagination: false,
+    depth: 1,
+  });
+  return docs.map(toEventSummary);
+});
+
+export const getEventBySlug = cache(async (slug: string): Promise<EventEntry | null> => {
+  const payload = await client();
+  const { docs } = await payload.find({
+    collection: "events",
+    where: { slug: { equals: slug } },
+    limit: 1,
+    depth: 1,
+  });
+  const doc = docs[0];
+  if (!doc) return null;
+  return {
+    ...toEventSummary(doc),
+    description: doc.description ?? null,
+    gallery: gallery(doc.gallery, doc.name),
+  };
+});
+
+/**
+ * The opening curtain. Returns `enabled: false` whenever there is nothing to
+ * show, so the home page can make one check instead of re-deriving the rule.
+ */
+export const getHomeIntro = cache(async (): Promise<HomeIntroData> => {
+  const payload = await client();
+  const intro = await payload.findGlobal({ slug: "home-intro", depth: 1 });
+  const panels = gallery(intro?.panelImages, "");
+  return {
+    enabled: Boolean(intro?.enabled) && panels.length >= 2,
+    headline: intro?.headline || D.home.heroHeadline.join(" "),
+    logo: mediaUrl(intro?.logo) || D.BRAND.logo,
+    panels,
+  };
+});
 
 // ------------------------------------------------------------------ static pages
 
