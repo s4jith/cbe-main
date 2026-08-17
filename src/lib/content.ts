@@ -16,6 +16,8 @@ import type {
   EventStatus,
   EventSummary,
   FaqItem,
+  HomeSectionsData,
+  ShowcaseEventData,
   HomeIntroData,
   Picture,
   FlagshipItem,
@@ -73,6 +75,24 @@ function gallery(rows: unknown, fallbackAlt: string): Picture[] {
 
 function isoDate(value: unknown): string {
   return typeof value === "string" ? value : "";
+}
+
+/**
+ * Flatten a Lexical document to plain text. Used where richtext has to appear
+ * somewhere that cannot render markup — a card summary, an email preview.
+ */
+function richTextToPlain(node: unknown, limit = 260): string {
+  const parts: string[] = [];
+  const walk = (n: unknown) => {
+    if (!n || typeof n !== "object") return;
+    const obj = n as { text?: unknown; children?: unknown };
+    if (typeof obj.text === "string") parts.push(obj.text);
+    if (Array.isArray(obj.children)) obj.children.forEach(walk);
+  };
+  const root = (node as { root?: unknown })?.root;
+  walk(root ?? node);
+  const text = parts.join(" ").replace(/\s+/g, " ").trim();
+  return text.length > limit ? `${text.slice(0, limit).trimEnd()}…` : text;
 }
 
 /** Replace {tokens} in copy with live site values. */
@@ -161,7 +181,10 @@ export const getSiteSettings = cache(async (): Promise<SiteInfo> => {
   };
 });
 
-export function getHeader(): HeaderData {
+export const getHeader = cache(async (): Promise<HeaderData> => {
+  // Async only because the menu overlay lists the socials, which live in Site
+  // Settings alongside everything else an editor can change.
+  const site = await getSiteSettings();
   return {
     logo: D.BRAND.logo,
     logoAlt: D.header.logoAlt,
@@ -171,14 +194,14 @@ export function getHeader(): HeaderData {
     menuLabel: D.header.menuLabel,
     items: D.NAV_LINKS,
     cta: sButton(D.header.cta.label, D.header.cta.href, D.header.cta.style),
+    socials: site.socials,
   };
-}
+});
 
 export const getFooter = cache(async (): Promise<FooterData> => {
   const payload = await client();
   const cms = await payload.findGlobal({ slug: "site-settings", depth: 0 }).catch(() => null);
-  const header = getHeader();
-  const site = await getSiteSettings();
+  const [header, site] = await Promise.all([getHeader(), getSiteSettings()]);
 
   // The "get involved" column is the only editable one — the others are derived
   // from the nav, the socials and the contact details, so editing them here
@@ -303,6 +326,91 @@ export const getFeaturedProjects = cache(async (limit = 7): Promise<Project[]> =
     .filter((p) => !p.featured)
     .sort((a, b) => b.date.localeCompare(a.date));
   return [...featured, ...rest].slice(0, limit);
+});
+
+export const getHomeSections = cache(async (): Promise<HomeSectionsData> => {
+  const payload = await client();
+  const cms = await payload.findGlobal({ slug: "home-sections", depth: 1 }).catch(() => null);
+
+  const stats =
+    cms?.stats && cms.stats.length > 0
+      ? cms.stats.map((s) => ({ value: s.value, label: s.label, href: s.href ?? undefined }))
+      : D.discover.stats;
+
+  return {
+    storyEyebrow: cms?.storyEyebrow || "About the club",
+    storyHeading: cms?.storyHeading || "Our story",
+    statement: cms?.statement || D.home.statement,
+    discoverEyebrow: cms?.discoverEyebrow || D.discover.eyebrow,
+    discoverHeading: cms?.discoverHeading || D.discover.heading,
+    discoverBody: cms?.discoverBody || D.discover.body,
+    discoverImage: mediaUrl(cms?.discoverImage) || D.discover.image,
+    discoverImageLabel: cms?.discoverImageLabel || D.discover.imageLabel,
+    stats,
+    // One field, split on the line break the editor typed.
+    eventsBackdrop: (cms?.eventsBackdrop || "Where ideas\nmeet impact")
+      .split(/\r?\n/)
+      .map((l) => l.trim())
+      .filter(Boolean),
+    faqEyebrow: cms?.faqEyebrow || "Frequently asked questions about the club",
+    faqHeading: cms?.faqHeading || "Everything You Need To Know",
+  };
+});
+
+/** Events with the extra fields the home page strip needs. */
+const getEventsRaw = cache(async () => {
+  const payload = await client();
+  const { docs } = await payload.find({
+    collection: "events",
+    sort: "-date",
+    pagination: false,
+    depth: 1,
+  });
+  return docs.map((d) => ({
+    name: d.name,
+    date: isoDate(d.date),
+    location: d.location,
+    image: picture(d.heroImage, d.name) ?? PLACEHOLDER,
+    kicker: d.kicker ?? "",
+    posterTone: d.posterTone ?? "starlight",
+    featured: Boolean(d.featured),
+    summary: richTextToPlain(d.description),
+  }));
+});
+
+const TONE_HEX: Record<string, { bg: string; ink: string }> = {
+  starlight: { bg: "#e0a11b", ink: "#2e1f00" },
+  cranberry: { bg: "#b5654f", ink: "#f8ece8" },
+  comet: { bg: "#7c93a3", ink: "#16242c" },
+  nebula: { bg: "#8d7f95", ink: "#2a2230" },
+};
+
+/**
+ * Events for the home page strip: the ones ticked as featured first, newest
+ * filling any remaining slots. Falls back to the placeholder set in defaults
+ * while the Events collection is still empty.
+ */
+export const getShowcaseEvents = cache(async (limit = 5): Promise<ShowcaseEventData[]> => {
+  const events = await getEventsRaw();
+  if (events.length === 0) {
+    return D.showcaseEvents.map((e) => ({ ...e }));
+  }
+
+  const featured = events.filter((e) => e.featured);
+  const rest = events.filter((e) => !e.featured);
+  return [...featured, ...rest].slice(0, limit).map((e) => {
+    const tone = TONE_HEX[e.posterTone] ?? TONE_HEX.starlight;
+    return {
+      title: e.name,
+      kicker: e.kicker || e.location,
+      year: e.date ? new Date(e.date).getFullYear().toString() : "",
+      venue: e.location,
+      description: e.summary,
+      image: e.image.src,
+      tone: tone.bg,
+      toneInk: tone.ink,
+    };
+  });
 });
 
 export const getBoardYears = cache(async (): Promise<BoardYear[]> => {

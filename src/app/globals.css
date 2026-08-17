@@ -219,6 +219,65 @@ body {
   color: var(--pdf-hover, var(--color-starlight));
 }
 
+/* =============================================================================
+   Service bands — a heading row that opens a scrolling ticker on hover.
+
+   The track is rendered twice side by side and travels exactly one copy's width,
+   so the loop rejoins itself with no visible seam. Both copies must animate, or
+   the second one sits still and the join shows.
+   ========================================================================== */
+
+@keyframes band-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+.band-track {
+  display: inline-block;
+  white-space: nowrap;
+  animation: band-scroll 22s linear infinite;
+}
+
+/* The ticker is collapsed to nothing until the row is hovered or focused. */
+.band-ticker {
+  transform: scaleY(0);
+  transform-origin: center;
+  transition: transform 0.45s var(--ease-out-quint);
+}
+.band-row:hover .band-ticker,
+.band-row:focus-within .band-ticker {
+  transform: scaleY(1);
+}
+
+/* Words fade in just behind the band opening, which is what stops the reveal
+   reading as a single blunt rectangle. */
+.band-track > span {
+  opacity: 0;
+  transition: opacity 0.3s ease 0.2s;
+}
+.band-row:hover .band-track > span,
+.band-row:focus-within .band-track > span {
+  opacity: 1;
+}
+
+/* The row leans into italic on hover; it sits on photography, so it keeps its
+   paper colour rather than taking an accent that would fight the image. */
+.band-row:hover .band-heading,
+.band-row:focus-within .band-heading {
+  font-style: italic;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Keep the reveal, drop the travel. */
+  .band-track {
+    animation: none;
+  }
+}
+
 /* Photographic grain. One repeating SVG turbulence tile over imagery keeps the
    photography from looking flat-digital; it is decorative and pointer-inert. */
 .grain::after {

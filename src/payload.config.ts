@@ -22,6 +22,7 @@ import { Faqs } from "./collections/Faqs";
 import { BoardYears } from "./collections/BoardYears";
 import { HomeIntro } from "./globals/HomeIntro";
 import { SiteSettings } from "./globals/SiteSettings";
+import { HomeSections } from "./globals/HomeSections";
 import {
   AdminContactEmailTemplate,
   UserContactEmailTemplate,
@@ -66,7 +67,13 @@ export default buildConfig({
     ContactSubmissions,
     Users,
   ],
-  globals: [HomeIntro, SiteSettings, AdminContactEmailTemplate, UserContactEmailTemplate],
+  globals: [
+    HomeIntro,
+    HomeSections,
+    SiteSettings,
+    AdminContactEmailTemplate,
+    UserContactEmailTemplate,
+  ],
   // Resend is only wired up when a key is present, so local development and CI
   // fall back to Payload's console transport instead of failing to boot.
   ...(process.env.RESEND_API_KEY

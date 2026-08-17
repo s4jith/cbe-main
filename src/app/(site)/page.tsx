@@ -15,15 +15,24 @@ import { ArrowButton } from "@/components/Buttons";
 import * as D from "@/lib/defaults";
 import CurtainIntro from "@/components/CurtainIntro";
 import ProjectShowcase from "@/components/ProjectShowcase";
+import ServiceBands from "@/components/ServiceBands";
+import ScrollHighlight from "@/components/ScrollHighlight";
+import DiscoverSection from "@/components/DiscoverSection";
+import OutlinedReveal from "@/components/OutlinedReveal";
+import EventsScroller from "@/components/EventsScroller";
+import BlogsCarousel from "@/components/BlogsCarousel";
 import {
   fill,
   getAvenues,
+  getBlogs,
   getBoardYears,
   getFaqs,
   getFeaturedProjects,
   getFlagship,
   getHomeContent,
   getHomeIntro,
+  getHomeSections,
+  getShowcaseEvents,
   getMembers,
   getProjects,
   getSiteSettings,
@@ -52,7 +61,7 @@ function splitHeadline(headline: string): string[] | null {
 export default async function Home() {
   const site = await getSiteSettings();
   const home = getHomeContent();
-  const [projects, featured, flagship, board, boardYears, avenues, intro, faqs] =
+  const [projects, featured, flagship, board, boardYears, avenues, intro, faqs, posts, copy, showcase] =
     await Promise.all([
       getProjects(),
       getFeaturedProjects(7),
@@ -62,6 +71,9 @@ export default async function Home() {
       getAvenues(),
       getHomeIntro(),
       getFaqs(),
+      getBlogs(),
+      getHomeSections(),
+      getShowcaseEvents(5),
     ]);
   const vars = siteVars(site, { count: projects.length });
 
@@ -90,38 +102,56 @@ export default async function Home() {
           backdrop
         />
 
-        {/* --- Avenues: the editorial index + signature hover preview -------- */}
-        <section className="section-y mt-24 bg-space text-paper max-lg:mt-16">
+        {/* --- the statement, coloured in on scroll -------------------------- */}
+        <section className="section-y bg-paper">
           <div className="shell">
-            <div className="grid gap-6 lg:grid-cols-12 lg:items-end lg:gap-8">
-              <div className="lg:col-span-7">
-                <p className="eyebrow text-paper/40">Five avenues</p>
-                <Headline
-                  data={home.avenuesSection.headline}
-                  sizes={[52, 44, 32]}
-                  className="mt-5 max-w-[14ch] text-paper"
-                />
-              </div>
-              <div className="flex lg:col-span-5 lg:justify-end">
-                <ArrowButton href="/projects" variant="light">
-                  {home.avenuesSection.linkLabel}
-                </ArrowButton>
-              </div>
-            </div>
-
-            <div className="mt-16 max-lg:mt-10">
-              {avenues.length > 0 ? (
-                <AvenueDeck avenues={avenues} />
-              ) : (
-                <AvenueList
-                  avenues={home.avenues}
-                  counts={counts}
-                  countLabel={home.avenuesSection.countLabel}
-                />
-              )}
-            </div>
+            <p className="eyebrow text-ink/45">{copy.storyEyebrow}</p>
+            <h2
+              className="mt-4 font-sans text-[34px] font-extrabold uppercase leading-none tracking-[-0.02em] text-ink max-md:text-[26px]"
+            >
+              {copy.storyHeading}
+            </h2>
+            <ScrollHighlight
+              text={copy.statement}
+              className="mt-12 max-w-[22ch] font-sans text-[clamp(26px,4.4vw,58px)] font-extrabold uppercase leading-[1.18] tracking-[-0.02em] max-md:mt-8"
+            />
           </div>
         </section>
+
+        <DiscoverSection
+          eyebrow={copy.discoverEyebrow}
+          heading={copy.discoverHeading}
+          body={copy.discoverBody}
+          stats={copy.stats}
+          image={copy.discoverImage}
+          imageLabel={copy.discoverImageLabel}
+        />
+
+        {/* Rows come straight from the Avenues collection — name and photograph
+            are already editable there, so there is no second list to keep. */}
+        <ServiceBands
+          bands={
+            avenues.length > 0
+              ? avenues.map((a) => ({
+                  label: a.name,
+                  href: `/blog?avenue=${a.slug}`,
+                  image: a.image.src,
+                }))
+              : D.SERVICE_BANDS
+          }
+          ticker={`${site.shortName} ✦`}
+        />
+
+        <OutlinedReveal
+          word="what"
+          lead="That's what"
+          trail="Main is"
+          image={D.discover.image}
+        />
+
+        <EventsScroller events={showcase} backdrop={copy.eventsBackdrop} />
+
+        <BlogsCarousel posts={posts} heading="Blogs" kicker="Our" />
 
         {/* --- Flagship story ----------------------------------------------- */}
         {flagship.length > 0 && (
@@ -197,19 +227,20 @@ export default async function Home() {
         {faqs.length > 0 && (
           <section className="section-y bg-paper">
             <div className="shell">
-              <div className="grid gap-x-16 gap-y-10 lg:grid-cols-12">
-                <div className="lg:col-span-4">
-                  <p className="eyebrow text-ink/45">Frequently asked</p>
-                  <h2
-                    className="headline mt-5 max-w-[12ch] text-ink"
-                    style={{ "--h-min": "32px", "--h-max": "52px" } as React.CSSProperties}
-                  >
-                    Everything you need to know.
-                  </h2>
-                </div>
-                <div className="lg:col-span-8">
-                  <FaqAccordion items={faqs} />
-                </div>
+              <p className="font-sans text-[clamp(17px,1.7vw,24px)] font-bold text-ink">
+                {copy.faqEyebrow}
+              </p>
+              <h2
+                className="mt-3 flex items-start gap-3 font-sans font-extrabold leading-none tracking-[-0.02em] text-cranberry"
+                style={{ fontSize: "clamp(26px, 3.4vw, 48px)" }}
+              >
+                <span aria-hidden className="text-[0.8em] leading-none">
+                  ✱
+                </span>
+                {copy.faqHeading}
+              </h2>
+              <div className="mt-12 max-md:mt-8">
+                <FaqAccordion items={faqs} />
               </div>
             </div>
           </section>

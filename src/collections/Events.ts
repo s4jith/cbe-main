@@ -88,6 +88,42 @@ export const Events: CollectionConfig = {
       },
     },
     {
+      name: "posterTone",
+      type: "select",
+      label: "Poster colour",
+      required: true,
+      defaultValue: "starlight",
+      options: [
+        { label: "Club gold", value: "starlight" },
+        { label: "Cranberry", value: "cranberry" },
+        { label: "Comet blue", value: "comet" },
+        { label: "Nebula violet", value: "nebula" },
+      ],
+      admin: {
+        position: "sidebar",
+        description: "The card colour on the home page events strip.",
+      },
+    },
+    {
+      name: "kicker",
+      type: "text",
+      admin: {
+        description:
+          "The short line under the poster image on the home page — e.g. “5K charity run · 400+ runners”.",
+      },
+    },
+    {
+      name: "featured",
+      type: "checkbox",
+      label: "Show on the home page",
+      defaultValue: false,
+      admin: {
+        position: "sidebar",
+        description:
+          "The home page strip shows up to five events. Tick this to put one there; the newest fill any remaining slots.",
+      },
+    },
+    {
       name: "registrationLink",
       type: "text",
       admin: {

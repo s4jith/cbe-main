@@ -232,6 +232,77 @@ if (faqCount === 0) {
   console.log(`faqs already has ${faqCount} entries — skipping`);
 }
 
+// ---- placeholder blog posts -------------------------------------------------
+// Only so the home page carousel and the blog index have something to render
+// before anybody has written a real post. Delete them from the admin once the
+// club's own writing goes up.
+const { totalDocs: blogCount } = await payload.count({ collection: "blogs" });
+if (blogCount === 0) {
+  console.log("Seeding placeholder blog posts…");
+  const { docs: avenueDocs } = await payload.find({
+    collection: "avenues",
+    pagination: false,
+    depth: 0,
+  });
+
+  const drafts = [
+    {
+      name: "What a blood drive actually takes",
+      summary:
+        "Six camps in a week sounds like logistics. It is really about the fortnight of phone calls that happens before anybody rolls up a sleeve.",
+      image: "/images/avenues/community.jpg",
+    },
+    {
+      name: "The insulin project, three years on",
+      summary:
+        "We started supporting four children. Here is what we learned about making help arrive every month rather than once.",
+      image: "/images/avenues/community.jpg",
+    },
+    {
+      name: "Why we run career sessions in February",
+      summary:
+        "Final-year students are at their most anxious and most reachable in the same fortnight. We built the programme around that.",
+      image: "/images/avenues/professional.jpg",
+    },
+    {
+      name: "Notes from an international twinning",
+      summary:
+        "Two clubs, two cities, one water and sanitation build — and the time zones that nearly undid the whole thing.",
+      image: "/images/avenues/international.jpg",
+    },
+    {
+      name: "What installation night is really for",
+      summary:
+        "It looks ceremonial from the outside. Inside the club it is the one evening the incoming board says out loud what it will be judged on.",
+      image: "/images/avenues/club.jpg",
+    },
+    {
+      name: "District priorities, in plain language",
+      summary:
+        "DREAM, MannShakti, Embrace, Hi5 — what the district's themes actually ask a club our size to do.",
+      image: "/images/avenues/district.jpg",
+    },
+  ];
+
+  for (const [i, d] of drafts.entries()) {
+    await payload.create({
+      collection: "blogs",
+      data: {
+        name: d.name,
+        cardSummary: d.summary,
+        details: richText([d.summary, "Placeholder body copy — replace this post from the admin."]) as never,
+        heroImage: await uploadImage(d.image, d.name),
+        avenue: String(avenueDocs[i % avenueDocs.length].id),
+        date: new Date(Date.now() - i * 86400000 * 12).toISOString(),
+      },
+      context: ctx(),
+    });
+    console.log(`  · ${d.name}`);
+  }
+} else {
+  console.log(`blogs already has ${blogCount} entries — skipping`);
+}
+
 // ---- email templates -------------------------------------------------------
 const adminEmail = await payload.findGlobal({ slug: "admin-contact-email" });
 if (!adminEmail?.richTextBody) {

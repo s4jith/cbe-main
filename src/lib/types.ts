@@ -61,6 +61,34 @@ export type EventEntry = EventSummary & {
   gallery: Picture[];
 };
 
+/** One card in the home page events strip. */
+export type ShowcaseEventData = {
+  title: string;
+  kicker: string;
+  year: string;
+  venue: string;
+  description: string;
+  image: string;
+  tone: string;
+  toneInk: string;
+};
+
+/** Editable copy for the home page's written sections. */
+export type HomeSectionsData = {
+  storyEyebrow: string;
+  storyHeading: string;
+  statement: string;
+  discoverEyebrow: string;
+  discoverHeading: string;
+  discoverBody: string;
+  discoverImage: string;
+  discoverImageLabel: string;
+  stats: { value: string; label: string; href?: string }[];
+  eventsBackdrop: string[];
+  faqEyebrow: string;
+  faqHeading: string;
+};
+
 /** The opening curtain on the home page. Empty `panels` means "don't play it". */
 export type HomeIntroData = {
   enabled: boolean;
@@ -239,6 +267,8 @@ export type HeaderData = {
   menuLabel: string;
   items: NavLink[];
   cta: ButtonData;
+  /** Shown along the foot of the menu overlay. */
+  socials: NavLink[];
 };
 
 export type FooterColumn = { title: string; links: NavLink[] };

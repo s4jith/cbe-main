@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { m, useReducedMotion } from "framer-motion";
+import Tilt from "@/components/Tilt";
 import { formatDate } from "@/lib/format";
 import type { Accent, BlogSummary } from "@/lib/types";
 
@@ -38,15 +39,17 @@ export default function PostGrid({ posts }: { posts: BlogSummary[] }) {
           transition={{ duration: 0.7, ease: EASE, delay: (i % 3) * 0.08 }}
         >
           <Link href={`/blog/${post.slug}`} className="group block">
-            <div className="grain relative aspect-[4/3] overflow-hidden rounded-md bg-mist">
-              <Image
-                src={post.image.src}
-                alt={post.image.alt}
-                fill
-                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                className="object-cover transition-transform duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04]"
-              />
-            </div>
+            <Tilt max={6}>
+              <div className="grain relative aspect-[4/3] overflow-hidden rounded-md bg-mist">
+                <Image
+                  src={post.image.src}
+                  alt={post.image.alt}
+                  fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  className="object-cover transition-transform duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04]"
+                />
+              </div>
+            </Tilt>
 
             <div className="mt-5">
               {post.avenue && (

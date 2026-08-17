@@ -68,6 +68,100 @@ export const FOOTER_LINKS: NavLink[] = [
   { label: "Blog", href: "/blog" },
 ];
 
+/**
+ * The hover-ticker rows between the hero and the avenues — what the club
+ * actually does, in the visitor's language rather than Rotaract's.
+ */
+/**
+ * The five avenues of service, as the ticker rows. Each carries the photograph
+ * that rises behind the row when it is hovered — placeholders for now, swap them
+ * for real project photography.
+ */
+export const SERVICE_BANDS: { label: string; href: string; image: string }[] = [
+  { label: "Club Service", href: "/projects", image: "/images/avenues/club.jpg" },
+  { label: "Community Service", href: "/projects", image: "/images/avenues/community.jpg" },
+  { label: "Professional Service", href: "/projects", image: "/images/avenues/professional.jpg" },
+  { label: "International Service", href: "/projects", image: "/images/avenues/international.jpg" },
+  { label: "District Priority Projects", href: "/projects", image: "/images/avenues/district.jpg" },
+];
+
+/**
+ * Placeholder events for the horizontal showcase. Swap these for real entries
+ * from the Events collection once there are five of them in the admin.
+ */
+export const showcaseEvents = [
+  {
+    title: "Rise & Run",
+    kicker: "5K charity run · 400+ runners",
+    year: "2026",
+    venue: "Race Course, Coimbatore",
+    description:
+      "A morning run opening the Rotaract year, raising funds for insulin support for children while getting half the city out of bed before sunrise.",
+    image: "/images/hero-strip/aravam.jpg",
+    tone: "#e0a11b",
+    toneInk: "#2e1f00",
+  },
+  {
+    title: "Red Drop",
+    kicker: "Blood drive · 6 camps",
+    year: "2026",
+    venue: "PSG Hospitals",
+    description:
+      "Six camps across the district in a single week, run with the blood donor registry so units reached the people who had already asked for them.",
+    image: "/images/avenues/community.jpg",
+    tone: "#b5654f",
+    toneInk: "#f8ece8",
+  },
+  {
+    title: "Career Compass",
+    kicker: "Mentoring · 12 speakers",
+    year: "2025",
+    venue: "CODISSIA Trade Fair Complex",
+    description:
+      "A day of sessions pairing final-year students with working professionals — CVs pulled apart, interviews rehearsed, and a few offers made on the spot.",
+    image: "/images/avenues/professional.jpg",
+    tone: "#7c93a3",
+    toneInk: "#16242c",
+  },
+  {
+    title: "Borderless",
+    kicker: "International exchange",
+    year: "2025",
+    venue: "Coimbatore & Colombo",
+    description:
+      "A joint project with a partner club overseas, twinning two communities around one shared water and sanitation build.",
+    image: "/images/avenues/international.jpg",
+    tone: "#8d7f95",
+    toneInk: "#2a2230",
+  },
+  {
+    title: "Installation Night",
+    kicker: "Club service · 120 guests",
+    year: "2025",
+    venue: "Hotel Le Meridien",
+    description:
+      "The handover of the collar, and the evening the incoming board sets out what the year is going to be about in front of everyone who will hold them to it.",
+    image: "/images/avenues/club.jpg",
+    tone: "#e0a11b",
+    toneInk: "#2e1f00",
+  },
+];
+
+/** Placeholder copy for the Discover band — replace with the club's own words. */
+export const discover = {
+  eyebrow: "Empowering changemakers",
+  heading: "Discover Main",
+  body: "Rotaract Coimbatore Main is a youth-led force for service in the city. Our work runs well past one-off events — we set out to give members the skills, the network and the nerve to take on problems their communities actually face, and to lead while they do it. Come build something that outlasts you.",
+  stats: [
+    { value: "500+", label: "Projects Completed" },
+    { value: "42", label: "Active Members" },
+    { value: "52+", label: "Years of Service" },
+    { value: "Chartered", label: "in 2009", href: "/about" },
+  ],
+  image: "/images/hero-strip/aravam.jpg",
+  imageLabel: "Empowering Changemakers",
+};
+
 export const header = {
   logoAlt: "Rotaract Club of Coimbatore Main",
   logoSize: 44,
@@ -124,6 +218,9 @@ export const home = {
   heroEyebrow: "Rotaract Club of Coimbatore Main",
   heroBody:
     "{name} — {parent}. Youth-led service and leadership under {district}, Coimbatore. 52+ years of community impact, 500+ projects, and growing.",
+  /** Coloured in word by word as the reader scrolls past it. */
+  statement:
+    "Chartered in 2009, we are Coimbatore's youth-led force for service. Five hundred projects on, we still measure ourselves by the same thing — who we lifted along the way.",
   avenuesHeadline: ["Five avenues.", "One force."],
   avenuesCountLabel: "projects",
   avenuesLinkLabel: "Explore projects",

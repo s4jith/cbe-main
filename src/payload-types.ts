@@ -109,12 +109,14 @@ export interface Config {
   fallbackLocale: null;
   globals: {
     'home-intro': HomeIntro;
+    'home-sections': HomeSection;
     'site-settings': SiteSetting;
     'admin-contact-email': AdminContactEmail;
     'user-contact-email': UserContactEmail;
   };
   globalsSelect: {
     'home-intro': HomeIntroSelect<false> | HomeIntroSelect<true>;
+    'home-sections': HomeSectionsSelect<false> | HomeSectionsSelect<true>;
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
     'admin-contact-email': AdminContactEmailSelect<false> | AdminContactEmailSelect<true>;
     'user-contact-email': UserContactEmailSelect<false> | UserContactEmailSelect<true>;
@@ -372,6 +374,18 @@ export interface Event {
    * Controls where the event appears on the page.
    */
   status: 'upcoming' | 'ongoing' | 'past';
+  /**
+   * The card colour on the home page events strip.
+   */
+  posterTone: 'starlight' | 'cranberry' | 'comet' | 'nebula';
+  /**
+   * The short line under the poster image on the home page — e.g. “5K charity run · 400+ runners”.
+   */
+  kicker?: string | null;
+  /**
+   * The home page strip shows up to five events. Tick this to put one there; the newest fill any remaining slots.
+   */
+  featured?: boolean | null;
   /**
    * Optional. A registration or RSVP link — the button only appears when this is filled in.
    */
@@ -697,6 +711,9 @@ export interface EventsSelect<T extends boolean = true> {
   date?: T;
   location?: T;
   status?: T;
+  posterTone?: T;
+  kicker?: T;
+  featured?: T;
   registrationLink?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -926,6 +943,60 @@ export interface HomeIntro {
   createdAt?: string | null;
 }
 /**
+ * The headings and copy on the home page. Anything left blank falls back to what the site already ships with.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "home-sections".
+ */
+export interface HomeSection {
+  id: string;
+  /**
+   * The small label above the heading.
+   */
+  storyEyebrow?: string | null;
+  storyHeading?: string | null;
+  /**
+   * The large statement that colours itself in as the reader scrolls past. Two or three sentences works best.
+   */
+  statement?: string | null;
+  discoverEyebrow?: string | null;
+  discoverHeading?: string | null;
+  discoverBody?: string | null;
+  /**
+   * The photograph beside the figures.
+   */
+  discoverImage?: (string | null) | Media;
+  /**
+   * The caption under that photograph.
+   */
+  discoverImageLabel?: string | null;
+  /**
+   * Four reads best — they are laid out two by two.
+   */
+  stats?:
+    | {
+        /**
+         * e.g. 500+
+         */
+        value: string;
+        label: string;
+        /**
+         * Optional. Makes the figure a link.
+         */
+        href?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * The hollow words behind the events track. Use a line break between the two lines.
+   */
+  eventsBackdrop?: string | null;
+  faqEyebrow?: string | null;
+  faqHeading?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * Footer links, socials, contact details and copyright. Anything left blank falls back to what the site already ships with.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1059,6 +1130,34 @@ export interface HomeIntroSelect<T extends boolean = true> {
         image?: T;
         id?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "home-sections_select".
+ */
+export interface HomeSectionsSelect<T extends boolean = true> {
+  storyEyebrow?: T;
+  storyHeading?: T;
+  statement?: T;
+  discoverEyebrow?: T;
+  discoverHeading?: T;
+  discoverBody?: T;
+  discoverImage?: T;
+  discoverImageLabel?: T;
+  stats?:
+    | T
+    | {
+        value?: T;
+        label?: T;
+        href?: T;
+        id?: T;
+      };
+  eventsBackdrop?: T;
+  faqEyebrow?: T;
+  faqHeading?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

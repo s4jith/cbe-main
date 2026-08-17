@@ -4,8 +4,8 @@ import { fill, getFooter, getHeader, getSiteSettings, siteVars } from "@/lib/con
 
 /** Server wrappers so pages can drop in the header/footer with no props. */
 
-export function SiteHeader({ tone = "light" }: { tone?: "light" | "dark" }) {
-  return <Header data={getHeader()} tone={tone} />;
+export async function SiteHeader({ tone = "light" }: { tone?: "light" | "dark" }) {
+  return <Header data={await getHeader()} tone={tone} />;
 }
 
 export async function SiteFooter() {

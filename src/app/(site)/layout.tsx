@@ -47,8 +47,13 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body className={`${display.variable} ${sans.variable} font-sans antialiased`}>
+    // The font variables belong on <html>, not <body>: globals.css resolves
+    // `--font-sans: var(--font-sans-var), …` inside `@theme`, which computes at
+    // :root. With the classes a level lower the variable was undefined there,
+    // the whole declaration became invalid, and every sans element on the site
+    // silently fell back to the system stack.
+    <html lang="en" className={`${display.variable} ${sans.variable}`}>
+      <body className="font-sans antialiased">
         <Preloader />
         <LenisProvider>
           <MotionProvider>{children}</MotionProvider>

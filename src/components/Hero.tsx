@@ -4,7 +4,9 @@ import { useRef } from "react";
 import Image from "next/image";
 import { m, useScroll, useTransform, useReducedMotion } from "framer-motion";
 import { PillButton, ArrowButton } from "@/components/Buttons";
-import GridBackdrop from "@/components/GridBackdrop";
+import PerspectiveGrid from "@/components/PerspectiveGrid";
+import HeroOrbit from "@/components/HeroOrbit";
+import ScrollCurve from "@/components/ScrollCurve";
 import BuildingBlocks from "@/components/BuildingBlocks";
 import type { HeroCard } from "@/lib/types";
 
@@ -57,16 +59,39 @@ export default function Hero({
   });
 
   return (
-    <section ref={ref} className="relative overflow-hidden pt-32 max-lg:pt-28">
-      {backdrop && <GridBackdrop />}
+    <section
+      ref={ref}
+      className={`relative overflow-hidden ${
+        // Full viewport, so nothing of the section below shows until the reader
+        // actually scrolls. No bottom padding either: the curve is the last
+        // element and padding under it paints as a dark bar below the arc.
+        backdrop
+          ? "flex min-h-dvh flex-col justify-center bg-space-deep pt-28 text-paper"
+          : "pt-32 max-lg:pt-28"
+      }`}
+    >
+      {backdrop && (
+        <>
+          <PerspectiveGrid />
+          {/* The wheel sits off to the right, behind the photograph's column,
+              so it reads as depth rather than as an illustration competing
+              with the headline. */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -right-[14%] top-1/2 h-[680px] w-[680px] -translate-y-1/2 max-xl:h-[500px] max-xl:w-[500px] max-lg:hidden"
+          >
+            <HeroOrbit />
+          </div>
+        </>
+      )}
       <div className="shell relative">
         {/* Mobile-first: a plain stack. The 12-column track only exists from lg up,
             where there is room for its gutters. */}
         <div className="grid gap-y-10 lg:grid-cols-12 lg:items-center lg:gap-x-10 lg:gap-y-12">
           {/* --- type column ------------------------------------------------ */}
           <div className="lg:col-span-7 xl:col-span-6">
-            {backdrop && <BuildingBlocks className="mb-8 max-lg:mb-6" />}
-            <m.p {...rise(0.35)} className="eyebrow text-ink-soft">
+            {backdrop === false && <BuildingBlocks className="mb-8 max-lg:mb-6" />}
+            <m.p {...rise(0.35)} className={`eyebrow ${backdrop ? "text-paper/45" : "text-ink-soft"}`}>
               {eyebrow}
             </m.p>
 
@@ -74,38 +99,60 @@ export default function Hero({
               {lines.map((line, i) => (
                 <span key={line} className="block overflow-hidden pb-[0.1em] -mb-[0.1em]">
                   <m.span
-                    className="headline block will-change-transform"
+                    // The dark opening is set in heavy uppercase sans rather than
+                    // the editorial serif the rest of the site uses — it has to
+                    // hold its own against the grid and the wheel behind it.
+                    className={
+                      backdrop
+                        ? "block font-sans font-extrabold uppercase leading-[0.98] tracking-[-0.02em] will-change-transform"
+                        : "headline block will-change-transform"
+                    }
                     style={
-                      {
-                        "--h-min": "38px",
-                        "--h-max": "78px",
-                        "--h-fluid": "calc(23.90px + 3.756vw)",
-                      } as React.CSSProperties
+                      backdrop
+                        ? { fontSize: "clamp(34px, 5.2vw, 74px)" }
+                        : ({
+                            "--h-min": "38px",
+                            "--h-max": "78px",
+                            "--h-fluid": "calc(23.90px + 3.756vw)",
+                          } as React.CSSProperties)
                     }
                     initial={reduced ? false : { y: "115%" }}
                     animate={{ y: "0%" }}
                     transition={{ duration: 1.05, ease: EASE, delay: 0.48 + i * 0.1 }}
                   >
-                    {i === 0 ? line : <em className="italic text-starlight-deep">{line}</em>}
+                    {backdrop ? (
+                      <span className={i === 0 ? "text-paper" : "text-starlight"}>{line}</span>
+                    ) : i === 0 ? (
+                      line
+                    ) : (
+                      <em className="italic text-starlight-deep">{line}</em>
+                    )}
                   </m.span>
                 </span>
               ))}
             </h1>
 
-            <m.p {...rise(0.78)} className="lede mt-6 max-w-[46ch] text-ink-soft lg:mt-7">
+            <m.p
+              {...rise(0.78)}
+              className={`lede mt-6 max-w-[46ch] lg:mt-7 ${
+                backdrop ? "text-paper/60" : "text-ink-soft"
+              }`}
+            >
               {body}
             </m.p>
 
             <m.div {...rise(0.9)} className="mt-8 flex flex-wrap items-center gap-x-8 gap-y-4 lg:mt-9">
               <PillButton href={primary.href}>{primary.label}</PillButton>
-              <ArrowButton href={secondary.href} variant="dark">
+              <ArrowButton href={secondary.href} variant={backdrop ? "light" : "dark"}>
                 {secondary.label}
               </ArrowButton>
             </m.div>
           </div>
 
           {/* --- photograph -------------------------------------------------- */}
-          {feature && (
+          {/* The dark opening gives the right-hand column to the wheel; a
+              photograph there would sit on top of it and both would lose. */}
+          {feature && !backdrop && (
             <div className="lg:col-span-5 xl:col-span-6">
               <m.figure
                 className="relative"
@@ -148,6 +195,14 @@ export default function Hero({
           )}
         </div>
       </div>
+
+      {/* The seam into the light section below. Inside the hero so it always
+          paints over the dark, whatever section follows. */}
+      {backdrop && (
+        <div className="absolute inset-x-0 bottom-0">
+          <ScrollCurve fill="var(--color-paper)" height={150} />
+        </div>
+      )}
     </section>
   );
 }

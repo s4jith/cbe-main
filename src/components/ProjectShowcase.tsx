@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallback, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { m, useReducedMotion } from "framer-motion";
@@ -7,77 +8,146 @@ import type { Project } from "@/lib/types";
 import { formatDate } from "@/lib/format";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
+const PER_PAGE = 3;
 
 /**
- * Seven projects on the home page, each opening the post that tells its story.
+ * Projects on the home page, in the same card treatment as the blog carousel:
+ * three at a time with the middle one inverted, and each card opening the post
+ * that tells that project's story.
  *
- * The first card runs double width so the row does not read as a plain grid —
- * with seven items an even grid always leaves an awkward gap on the last line.
+ * Paging moves a whole row rather than one card — stepping by one leaves the
+ * highlighted centre position hopping between projects on every press.
  */
 export default function ProjectShowcase({ projects }: { projects: Project[] }) {
   const reduced = useReducedMotion();
+  const [page, setPage] = useState(0);
+
+  const pages = Math.max(1, Math.ceil(projects.length / PER_PAGE));
+  const go = useCallback(
+    (delta: number) => setPage((p) => (p + delta + pages) % pages),
+    [pages],
+  );
+
   if (projects.length === 0) return null;
+  const visible = projects.slice(page * PER_PAGE, page * PER_PAGE + PER_PAGE);
 
   return (
-    <div className="grid gap-x-7 gap-y-12 md:grid-cols-2 lg:grid-cols-3">
-      {projects.map((project, i) => {
-        const wide = i === 0;
-        return (
-          <m.article
-            key={`${project.title}-${i}`}
-            className={wide ? "md:col-span-2" : undefined}
-            initial={reduced ? false : { opacity: 0, y: 34 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "0px 0px -60px 0px" }}
-            transition={{ duration: 0.7, ease: EASE, delay: (i % 3) * 0.07 }}
-          >
-            <Link
-              href={project.postSlug ? `/blog/${project.postSlug}` : "/blog"}
-              className="group block"
-            >
-              <div
-                className={`grain relative overflow-hidden rounded-md bg-mist ${
-                  wide ? "aspect-[16/9]" : "aspect-[4/3]"
-                }`}
-              >
-                {project.image && (
-                  <Image
-                    src={project.image}
-                    alt=""
-                    fill
-                    sizes={wide ? "(max-width: 768px) 100vw, 66vw" : "(max-width: 768px) 100vw, 33vw"}
-                    className="object-cover transition-transform duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04]"
-                  />
-                )}
-              </div>
+    <div className="relative">
+      <div className="grid gap-7 md:grid-cols-3">
+        {visible.map((project, i) => {
+          const featured = visible.length === PER_PAGE && i === 1;
+          const href = project.postSlug ? `/blog/${project.postSlug}` : "/blog";
 
-              <div className="mt-5">
-                <span className="text-[12px] font-medium uppercase tracking-[0.14em] text-ink/50">
-                  {project.avenue}
-                </span>
+          return (
+            <m.article
+              key={`${project.title}-${i}`}
+              initial={reduced ? false : { opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, ease: EASE, delay: i * 0.07 }}
+              className={`rounded-lg border p-6 ${
+                featured
+                  ? "border-transparent bg-space text-paper md:-my-4"
+                  : "border-line bg-paper"
+              }`}
+            >
+              <Link href={href} className="group block">
+                <div className="flex items-start justify-between gap-4">
+                  <span aria-hidden className="text-cranberry">
+                    ◕
+                  </span>
+                  <span className="text-[13px] font-medium text-cranberry">
+                    {project.avenue}
+                  </span>
+                </div>
+
                 <h3
-                  className={`title-sans mt-2.5 leading-snug text-ink ${
-                    wide ? "text-[26px] max-md:text-[21px]" : "text-[20px]"
+                  className={`title-sans mt-4 text-[19px] leading-snug ${
+                    featured ? "text-paper" : "text-ink"
                   }`}
                 >
                   {project.title}
                 </h3>
-                <p className="body-text mt-2 max-w-[52ch] text-ink-soft">{project.description}</p>
-                <div className="mt-3 flex items-center gap-3">
-                  {project.date && (
-                    <time dateTime={project.date} className="text-[13px] font-medium text-ink/45">
-                      {formatDate(project.date)}
-                    </time>
-                  )}
-                  <span className="wipe-link text-[13px] font-semibold text-starlight-deep">
-                    {project.postSlug ? "Read the story" : "More on the blog"}
-                  </span>
-                </div>
-              </div>
-            </Link>
-          </m.article>
-        );
-      })}
+                <p className={`body-text mt-3 ${featured ? "text-paper/70" : "text-ink-soft"}`}>
+                  {project.description}
+                </p>
+
+                {project.image && (
+                  <div className="relative mt-5 aspect-[4/3] w-full overflow-hidden rounded-md bg-mist">
+                    <Image
+                      src={project.image}
+                      alt=""
+                      fill
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                      className="object-cover transition-transform duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04]"
+                    />
+                  </div>
+                )}
+
+                {project.date && (
+                  <time
+                    dateTime={project.date}
+                    className={`mt-4 block text-[13px] font-medium ${
+                      featured ? "text-paper/50" : "text-ink/45"
+                    }`}
+                  >
+                    {formatDate(project.date)}
+                  </time>
+                )}
+              </Link>
+            </m.article>
+          );
+        })}
+      </div>
+
+      {pages > 1 && (
+        <>
+          <PageButton side="left" onClick={() => go(-1)} />
+          <PageButton side="right" onClick={() => go(1)} />
+          <div className="mt-10 flex items-center justify-center gap-2.5">
+            {Array.from({ length: pages }, (_, i) => (
+              <button
+                key={i}
+                onClick={() => setPage(i)}
+                aria-label={`Go to page ${i + 1}`}
+                aria-current={i === page}
+                className={`h-2.5 rounded-full transition-all duration-300 ${
+                  i === page ? "w-6 bg-cranberry" : "w-2.5 bg-ink/20 hover:bg-ink/40"
+                }`}
+              />
+            ))}
+          </div>
+        </>
+      )}
     </div>
+  );
+}
+
+function PageButton({ side, onClick }: { side: "left" | "right"; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={side === "left" ? "Previous projects" : "Next projects"}
+      className={`absolute top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-ink text-paper transition-transform hover:scale-105 max-lg:hidden ${
+        side === "left" ? "-left-5" : "-right-5"
+      }`}
+    >
+      <svg
+        width="15"
+        height="12"
+        viewBox="0 0 17 12"
+        fill="none"
+        aria-hidden
+        style={side === "left" ? { transform: "scaleX(-1)" } : undefined}
+      >
+        <path
+          d="M11 1L16 6L11 11M16 6H1"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </button>
   );
 }

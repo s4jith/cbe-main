@@ -30,20 +30,28 @@ export default function FaqAccordion({ items }: { items: FaqItem[] }) {
                 onClick={() => setOpenId(open ? null : item.id)}
                 aria-expanded={open}
                 aria-controls={`faq-panel-${item.id}`}
-                className="flex w-full items-start justify-between gap-8 py-7 text-left max-md:py-6"
+                className="flex w-full items-center justify-between gap-8 py-7 text-left max-md:py-5"
               >
-                <span className="title-sans text-[19px] leading-snug text-ink max-md:text-[17px]">
+                <span className="font-sans text-[clamp(16px,1.5vw,21px)] font-bold leading-snug text-ink">
                   {item.question}
                 </span>
-                {/* A plus that becomes a minus — cheaper than swapping icons. */}
-                <span className="relative mt-1.5 h-4 w-4 shrink-0" aria-hidden>
-                  <span className="absolute left-0 top-1/2 h-[1.5px] w-4 -translate-y-1/2 bg-ink" />
-                  <m.span
-                    className="absolute left-1/2 top-0 h-4 w-[1.5px] -translate-x-1/2 bg-ink"
-                    animate={{ scaleY: open ? 0 : 1 }}
-                    transition={{ duration: 0.35, ease: EASE }}
-                  />
-                </span>
+                {/* A chevron that turns over when the panel opens. */}
+                <m.span
+                  aria-hidden
+                  className="shrink-0 text-ink"
+                  animate={{ rotate: open ? 180 : 0 }}
+                  transition={{ duration: 0.35, ease: EASE }}
+                >
+                  <svg width="20" height="12" viewBox="0 0 20 12" fill="none">
+                    <path
+                      d="M1 1l9 9 9-9"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </m.span>
               </button>
             </h3>
 
