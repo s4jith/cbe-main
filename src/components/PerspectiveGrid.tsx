@@ -24,13 +24,16 @@ export default function PerspectiveGrid({ className = "" }: { className?: string
         style={{
           transform: "rotateX(72deg)",
           transformOrigin: "50% 0%",
+          // Red rulings, with a red dot dropped on every intersection — the same
+          // dotted floor the reference runs under its globe.
           backgroundImage: `
-            linear-gradient(to right, rgba(181, 101, 79, 0.42) 1px, transparent 1px),
-            linear-gradient(to bottom, rgba(181, 101, 79, 0.42) 1px, transparent 1px)
+            radial-gradient(circle at 0 0, rgba(236, 43, 33, 0.9) 0, rgba(236, 43, 33, 0.9) 2px, transparent 2.6px),
+            linear-gradient(to right, rgba(236, 43, 33, 0.28) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(236, 43, 33, 0.28) 1px, transparent 1px)
           `,
-          backgroundSize: "88px 88px",
-          maskImage: "linear-gradient(to bottom, #000 0%, transparent 72%)",
-          WebkitMaskImage: "linear-gradient(to bottom, #000 0%, transparent 72%)",
+          backgroundSize: "88px 88px, 88px 88px, 88px 88px",
+          maskImage: "linear-gradient(to bottom, #000 0%, transparent 74%)",
+          WebkitMaskImage: "linear-gradient(to bottom, #000 0%, transparent 74%)",
         }}
         // The floor creeps toward the viewer, which is what makes it read as a
         // surface rather than a printed pattern.
@@ -38,13 +41,13 @@ export default function PerspectiveGrid({ className = "" }: { className?: string
         transition={{ duration: 6, ease: "linear", repeat: Infinity }}
       />
 
-      {/* A warm bloom off the left edge, as in the reference composition. */}
+      {/* A hot orange-red bloom off the left edge, as in the reference. */}
       <div
-        className="absolute -left-[18%] top-1/2 h-[80%] w-[42%] -translate-y-1/2 rounded-full"
+        className="absolute -left-[16%] top-1/2 h-[85%] w-[44%] -translate-y-1/2 rounded-full"
         style={{
           background:
-            "radial-gradient(closest-side, rgba(224, 161, 27, 0.30), rgba(181, 101, 79, 0.16) 55%, transparent)",
-          filter: "blur(18px)",
+            "radial-gradient(closest-side, rgba(236, 43, 33, 0.34), rgba(245, 90, 40, 0.16) 55%, transparent)",
+          filter: "blur(20px)",
         }}
       />
     </div>

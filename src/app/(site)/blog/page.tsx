@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { SiteHeader, SiteFooter } from "@/components/SiteChrome";
 import PostGrid from "@/components/PostGrid";
-import CTABanner from "@/components/CTABanner";
 import { getAvenues, getBlogs } from "@/lib/content";
 
 export const metadata: Metadata = {
@@ -62,7 +61,6 @@ export default async function BlogIndex({
           </div>
         </section>
 
-        <CTABanner />
       </main>
       <SiteFooter />
     </>

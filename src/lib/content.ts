@@ -276,6 +276,10 @@ export const getMembers = cache(async (memberType: "board" | "general"): Promise
     image: mediaUrl(d.photo),
     bio: d.bio ?? "",
     year: typeof d.year === "number" ? d.year : null,
+    socials: {
+      instagram: d.socials?.instagram ?? "",
+      linkedin: d.socials?.linkedin ?? "",
+    },
   }));
 });
 

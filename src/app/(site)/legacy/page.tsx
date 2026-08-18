@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { SiteHeader, SiteFooter } from "@/components/SiteChrome";
 import Headline from "@/components/Headline";
 import LegacyGallery from "@/components/LegacyGallery";
-import CTABanner from "@/components/CTABanner";
 import { getLegacyPhotos } from "@/lib/content";
 import * as D from "@/lib/defaults";
 
@@ -37,7 +36,6 @@ export default async function LegacyPage() {
           </div>
         </section>
 
-        <CTABanner />
       </main>
       <SiteFooter />
     </>

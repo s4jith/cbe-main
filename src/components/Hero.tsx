@@ -78,7 +78,7 @@ export default function Hero({
               with the headline. */}
           <div
             aria-hidden
-            className="pointer-events-none absolute -right-[14%] top-1/2 h-[680px] w-[680px] -translate-y-1/2 max-xl:h-[500px] max-xl:w-[500px] max-lg:hidden"
+            className="pointer-events-none absolute -right-[8%] top-1/2 h-[900px] w-[900px] -translate-y-1/2 max-xl:h-[640px] max-xl:w-[640px] max-lg:hidden"
           >
             <HeroOrbit />
           </div>

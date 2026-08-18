@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { SiteHeader, SiteFooter } from "@/components/SiteChrome";
 import Headline from "@/components/Headline";
 import ProjectsGrid from "@/components/ProjectsGrid";
-import CTABanner from "@/components/CTABanner";
 import { clubYearOf } from "@/lib/dates";
 import {
   fill,
@@ -63,7 +62,6 @@ export default async function ProjectsPage() {
           </div>
         </section>
 
-        {page.showCta && <CTABanner />}
       </main>
       <SiteFooter />
     </>

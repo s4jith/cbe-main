@@ -3,7 +3,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { SiteHeader, SiteFooter } from "@/components/SiteChrome";
 import Reveal from "@/components/Reveal";
-import CTABanner from "@/components/CTABanner";
 import { getEvents } from "@/lib/content";
 import { formatDateTime } from "@/lib/format";
 import type { EventSummary } from "@/lib/types";
@@ -75,7 +74,6 @@ export default async function EventsIndex() {
           </section>
         )}
 
-        <CTABanner />
       </main>
       <SiteFooter />
     </>

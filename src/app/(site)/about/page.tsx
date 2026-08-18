@@ -5,7 +5,6 @@ import Headline from "@/components/Headline";
 import Section, { Eyebrow, muted } from "@/components/Section";
 import PhotoFan from "@/components/PhotoFan";
 import FourWayTest from "@/components/FourWayTest";
-import CTABanner from "@/components/CTABanner";
 import Reveal from "@/components/Reveal";
 import Marquee from "@/components/Marquee";
 import { alpha, cssColor } from "@/lib/theme";
@@ -225,7 +224,6 @@ export default async function AboutPage() {
           </Marquee>
         </Section>
 
-        {about.showCta && <CTABanner />}
       </main>
       <SiteFooter />
     </>

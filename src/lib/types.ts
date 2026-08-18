@@ -127,6 +127,8 @@ export type Member = {
   bio: string;
   /** Rotaract year this board served, as its starting year (July–June term). */
   year: number | null;
+  /** Optional profile links shown on the board card. */
+  socials: { instagram: string; linkedin: string };
 };
 
 export type FaqItem = { id: string; question: string; answer: string };

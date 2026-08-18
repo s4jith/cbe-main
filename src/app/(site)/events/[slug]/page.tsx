@@ -5,7 +5,6 @@ import { notFound } from "next/navigation";
 import { SiteHeader, SiteFooter } from "@/components/SiteChrome";
 import Prose from "@/components/Prose";
 import Reveal from "@/components/Reveal";
-import CTABanner from "@/components/CTABanner";
 import { PillButton } from "@/components/Buttons";
 import { getEventBySlug, getEvents } from "@/lib/content";
 import { formatDateTime } from "@/lib/format";
@@ -127,7 +126,6 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
           </div>
         </article>
 
-        <CTABanner />
       </main>
       <SiteFooter />
     </>

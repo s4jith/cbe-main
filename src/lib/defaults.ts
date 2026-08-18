@@ -7,7 +7,7 @@
 import type { ContactBlock, FormFieldData, NavLink } from "@/lib/types";
 
 export const BRAND = {
-  logo: "/images/brand/club-logo.webp",
+  logo: "/images/brand/site-logo.png",
   prayerEmblem: "/images/brand/prayer.webp",
   shareImage: "/images/brand/og-banner.jpg",
 };

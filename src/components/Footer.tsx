@@ -5,13 +5,20 @@ import BackToTop from "@/components/BackToTop";
 import * as D from "@/lib/defaults";
 import type { FooterData, NavLink, SiteInfo } from "@/lib/types";
 
+/** Kept for CtaClose, which reuses this shape for the closing invitation. */
+export type FooterCta = {
+  headline: string[];
+  body: string;
+  primary: { label: string; href: string };
+  secondary: { label: string; href: string };
+  secondaryNote?: string;
+};
+
 /**
- * The ending: identity and socials on the left, a short menu and the contact
- * details on the right, then the club's name set as large as the page allows.
- *
- * The wordmark is two layers — "COIMBATORE" stretched faintly across the full
- * width with "MAIN" solid on top of it. Both are decorative duplicates of text
- * already in the footer, so they are hidden from assistive tech.
+ * A full-height closing footer. Identity, menu and contact sit at the top; the
+ * club name runs across the foot of the page, its letters spread edge to edge
+ * the way a masthead is set — one clean wordmark rather than two overlapping
+ * words.
  */
 export default function Footer({
   data,
@@ -22,19 +29,21 @@ export default function Footer({
   site: SiteInfo;
   menu: NavLink[];
 }) {
+  const letters = data.wordmark.toUpperCase().split("");
+
   return (
-    <footer className="bg-space-deep text-paper">
-      <div className="shell pt-20 max-md:pt-14">
+    <footer className="flex min-h-dvh flex-col bg-space-deep text-paper">
+      <div className="shell flex flex-1 flex-col pt-24 max-md:pt-16">
+        {/* --- identity / menu / contact -------------------------------- */}
         <div className="grid gap-x-10 gap-y-14 md:grid-cols-12">
-          {/* --- identity + socials --------------------------------------- */}
           <div className="md:col-span-6">
             <div className="flex items-center gap-3">
               <Image
                 src={D.BRAND.logo}
                 alt=""
-                width={44}
-                height={44}
-                className="h-11 w-11 object-contain"
+                width={48}
+                height={48}
+                className="h-12 w-12 object-contain"
               />
               <div>
                 <p className="title-sans text-[18px] leading-none text-paper">
@@ -57,7 +66,7 @@ export default function Footer({
                           target="_blank"
                           rel="noopener noreferrer"
                           aria-label={s.label}
-                          className="block text-paper/70 transition-colors hover:text-starlight"
+                          className="block text-paper/70 transition-colors hover:text-cranberry"
                         >
                           <SocialIcon name={s.label} />
                         </Link>
@@ -68,7 +77,6 @@ export default function Footer({
             )}
           </div>
 
-          {/* --- menu ------------------------------------------------------ */}
           <nav aria-label="Footer menu" className="md:col-span-3">
             <h2 className="title-sans text-[19px] text-paper">Menu</h2>
             <ul className="mt-5 space-y-3.5">
@@ -85,7 +93,6 @@ export default function Footer({
             </ul>
           </nav>
 
-          {/* --- contact --------------------------------------------------- */}
           <div className="md:col-span-3">
             <h2 className="title-sans text-[19px] text-paper">Contact</h2>
             <ul className="mt-5 space-y-3.5">
@@ -113,28 +120,22 @@ export default function Footer({
           </div>
         </div>
 
-        {/* --- the wordmark --------------------------------------------- */}
-        <div className="mt-20 border-t border-line-invert pt-14 max-md:mt-14 max-md:pt-10">
-          <div aria-hidden className="relative select-none">
-            {/* Back layer: stretched edge to edge, just legible. */}
-            <span
-              className="absolute inset-x-0 top-1/2 -translate-y-1/2 text-center font-display uppercase leading-none text-paper/10"
-              style={{ fontSize: "clamp(30px, 8.6vw, 118px)", letterSpacing: "0.02em" }}
-            >
-              Coimbatore
-            </span>
-            {/* Front layer. */}
-            <p
-              className="relative text-center font-display uppercase leading-[0.85] text-paper"
-              style={{ fontSize: "clamp(72px, 22vw, 300px)" }}
-            >
-              {data.wordmark}
-            </p>
+        {/* --- the wordmark, spread across the foot --------------------- */}
+        <div className="mt-auto pt-16 max-md:pt-12">
+          <div className="border-t border-line-invert pt-8" />
+          <div
+            aria-hidden
+            className="flex select-none items-end justify-between font-sans font-black leading-[0.8] text-paper"
+            style={{ fontSize: "clamp(64px, 21vw, 300px)", letterSpacing: "-0.01em" }}
+          >
+            {letters.map((ch, i) => (
+              <span key={i}>{ch}</span>
+            ))}
           </div>
         </div>
 
         {/* --- bottom bar ------------------------------------------------ */}
-        <div className="mt-12 flex flex-wrap items-center justify-between gap-4 border-t border-line-invert py-8 max-md:mt-8">
+        <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-line-invert py-7">
           <p className="text-[13px] text-paper/40">{data.copyright}</p>
           <BackToTop />
         </div>

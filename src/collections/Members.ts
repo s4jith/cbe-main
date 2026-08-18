@@ -75,6 +75,27 @@ export const Members: CollectionConfig = {
       required: true,
     },
     {
+      name: "socials",
+      type: "group",
+      label: "Social links",
+      admin: {
+        description:
+          "Optional. Shown as small icons on this member's board card — leave a field blank to hide that icon.",
+      },
+      fields: [
+        {
+          name: "instagram",
+          type: "text",
+          admin: { description: "Full Instagram profile URL." },
+        },
+        {
+          name: "linkedin",
+          type: "text",
+          admin: { description: "Full LinkedIn profile URL." },
+        },
+      ],
+    },
+    {
       name: "year",
       type: "number",
       label: "Rotaract year",

@@ -416,6 +416,19 @@ export interface Member {
   bio?: string | null;
   photo: string | Media;
   /**
+   * Optional. Shown as small icons on this member's board card — leave a field blank to hide that icon.
+   */
+  socials?: {
+    /**
+     * Full Instagram profile URL.
+     */
+    instagram?: string | null;
+    /**
+     * Full LinkedIn profile URL.
+     */
+    linkedin?: string | null;
+  };
+  /**
    * The year this board served, entered as the starting year — a term running July 2025 to June 2026 is 2025. Drives the year tabs on the home page.
    */
   year: number;
@@ -763,6 +776,12 @@ export interface MembersSelect<T extends boolean = true> {
   memberType?: T;
   bio?: T;
   photo?: T;
+  socials?:
+    | T
+    | {
+        instagram?: T;
+        linkedin?: T;
+      };
   year?: T;
   order?: T;
   updatedAt?: T;

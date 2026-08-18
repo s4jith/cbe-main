@@ -85,6 +85,8 @@ export default function EventsScroller({
           </div>
         </div>
 
+        <LightBeam />
+
         <Header />
 
         <m.div className="relative flex items-center gap-[6vw] pl-[9vw] will-change-transform" style={{ x }}>
@@ -93,6 +95,49 @@ export default function EventsScroller({
           ))}
         </m.div>
       </div>
+    </div>
+  );
+}
+
+/**
+ * The shard of white light raking down from the top-right corner — the same
+ * accent the reference runs over its events. A bright origin glow plus a few
+ * skewed, staggered blades of light. Purely decorative and pointer-inert.
+ */
+function LightBeam() {
+  const blades = [
+    { left: 0, w: 26, o: 1 },
+    { left: 34, w: 20, o: 0.7 },
+    { left: 60, w: 30, o: 0.9 },
+    { left: 98, w: 16, o: 0.5 },
+    { left: 120, w: 24, o: 0.75 },
+  ];
+  return (
+    <div
+      aria-hidden
+      className="pointer-events-none absolute right-[6%] top-0 h-[46vh] w-[220px] max-lg:hidden"
+      style={{ transform: "rotate(18deg)", transformOrigin: "top center" }}
+    >
+      {/* origin glow */}
+      <div
+        className="absolute left-1/2 top-0 h-40 w-40 -translate-x-1/2 -translate-y-1/3 rounded-full"
+        style={{ background: "radial-gradient(closest-side, rgba(255,255,255,0.5), transparent)", filter: "blur(6px)" }}
+      />
+      {blades.map((b, i) => (
+        <div
+          key={i}
+          className="absolute top-0"
+          style={{
+            left: b.left,
+            width: b.w,
+            height: "100%",
+            opacity: b.o,
+            transform: `skewX(-14deg)`,
+            background:
+              "linear-gradient(to bottom, rgba(255,255,255,0.95), rgba(255,255,255,0.65) 30%, rgba(255,255,255,0) 92%)",
+          }}
+        />
+      ))}
     </div>
   );
 }

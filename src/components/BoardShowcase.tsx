@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, m, useReducedMotion } from "framer-motion";
+import SocialIcon from "@/components/SocialIcon";
 import type { BoardYear, Member } from "@/lib/types";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -157,6 +158,15 @@ export default function BoardShowcase({
             </p>
           )}
 
+          {/* A year on record with no members yet — the group photo still shows
+              on the left, so this side just explains the gap. */}
+          {count === 0 && (
+            <p className="body-text text-paper/50">
+              Add this year&rsquo;s board members in the admin — set each member&rsquo;s Rotaract
+              year to {yearText} and they will appear here.
+            </p>
+          )}
+
           {active && (
             <div className="flex items-center gap-4 max-sm:gap-2">
               {count > 1 && <ArrowControl label="Previous board member" onClick={() => go(-1)} flip />}
@@ -196,6 +206,36 @@ export default function BoardShowcase({
                           sizes="310px"
                           className="object-cover"
                         />
+                      )}
+
+                      {/* Profile links, hung down the photo's right edge as in
+                          the reference. Each icon only renders when the member
+                          actually has that link set. */}
+                      {(active.socials.instagram || active.socials.linkedin) && (
+                        <div className="absolute bottom-4 right-3 flex flex-col gap-2.5">
+                          {active.socials.instagram && (
+                            <a
+                              href={active.socials.instagram}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              aria-label={`${active.name} on Instagram`}
+                              className="grid h-9 w-9 place-items-center rounded-md bg-space/70 text-paper backdrop-blur-sm transition-colors hover:bg-cranberry"
+                            >
+                              <SocialIcon name="Instagram" size={18} />
+                            </a>
+                          )}
+                          {active.socials.linkedin && (
+                            <a
+                              href={active.socials.linkedin}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              aria-label={`${active.name} on LinkedIn`}
+                              className="grid h-9 w-9 place-items-center rounded-md bg-space/70 text-paper backdrop-blur-sm transition-colors hover:bg-cranberry"
+                            >
+                              <SocialIcon name="LinkedIn" size={18} />
+                            </a>
+                          )}
+                        </div>
                       )}
                     </div>
 

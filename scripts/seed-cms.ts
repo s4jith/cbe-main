@@ -184,6 +184,65 @@ if (yearless.length > 0) {
   console.log("every member already has a year — skipping");
 }
 
+// ---- board years + member socials (dummy, editable in admin) ----------------
+// Give the year-tab row something to show and hang some placeholder profile
+// links off the board cards. A real group photo and real links replace these
+// from the admin — Board Years and each member's Social links.
+const { totalDocs: boardYearCount } = await payload.count({ collection: "board-years" });
+if (boardYearCount === 0) {
+  const { docs: someMedia } = await payload.find({ collection: "media", limit: 1, depth: 0 });
+  const groupPhoto = someMedia[0] ? String(someMedia[0].id) : undefined;
+  if (groupPhoto) {
+    console.log("Seeding placeholder board years…");
+    for (const y of [thisYear, thisYear - 1, thisYear - 2]) {
+      await payload.create({
+        collection: "board-years",
+        data: {
+          year: y,
+          groupPhoto,
+          caption: `The ${y}–${String((y + 1) % 100).padStart(2, "0")} board — placeholder group photo, replace in the admin.`,
+        },
+        context: ctx(),
+      });
+      console.log(`  · board year ${y}`);
+    }
+  } else {
+    console.log("no media to use as a placeholder group photo — skipping board years");
+  }
+} else {
+  console.log(`board-years already has ${boardYearCount} entries — skipping`);
+}
+
+// Placeholder social links on any board member that has none yet.
+const { docs: boardMembers } = await payload.find({
+  collection: "members",
+  where: { memberType: { equals: "board" } },
+  pagination: false,
+  depth: 0,
+});
+const socialless = boardMembers.filter(
+  (m) => !m.socials || (!m.socials.instagram && !m.socials.linkedin),
+);
+if (socialless.length > 0) {
+  console.log(`Seeding placeholder socials on ${socialless.length} board members…`);
+  for (const m of socialless) {
+    const handle = String(m.name || "member").toLowerCase().replace(/[^a-z0-9]+/g, "");
+    await payload.update({
+      collection: "members",
+      id: m.id,
+      data: {
+        socials: {
+          instagram: `https://instagram.com/${handle}`,
+          linkedin: `https://www.linkedin.com/in/${handle}`,
+        },
+      },
+      context: ctx(),
+    });
+  }
+} else {
+  console.log("board members already have socials — skipping");
+}
+
 // ---- faqs ------------------------------------------------------------------
 const { totalDocs: faqCount } = await payload.count({ collection: "faqs" });
 if (faqCount === 0) {

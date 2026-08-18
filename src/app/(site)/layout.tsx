@@ -3,6 +3,7 @@ import { Instrument_Serif, Inter } from "next/font/google";
 import LenisProvider from "@/components/LenisProvider";
 import MotionProvider from "@/components/MotionProvider";
 import Preloader from "@/components/Preloader";
+import CustomCursor from "@/components/CustomCursor";
 import { getSiteSettings } from "@/lib/content";
 import "../globals.css";
 
@@ -55,6 +56,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${display.variable} ${sans.variable}`}>
       <body className="font-sans antialiased">
         <Preloader />
+        <CustomCursor />
         <LenisProvider>
           <MotionProvider>{children}</MotionProvider>
         </LenisProvider>

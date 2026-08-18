@@ -9,8 +9,6 @@ import FlagshipStory from "@/components/FlagshipStory";
 import FourWayTest from "@/components/FourWayTest";
 import BoardShowcase from "@/components/BoardShowcase";
 import FaqAccordion from "@/components/FaqAccordion";
-import CTABanner from "@/components/CTABanner";
-import Marquee from "@/components/Marquee";
 import { ArrowButton } from "@/components/Buttons";
 import * as D from "@/lib/defaults";
 import CurtainIntro from "@/components/CurtainIntro";
@@ -90,7 +88,7 @@ export default async function Home() {
   return (
     <>
       <CurtainIntro intro={intro} />
-      <SiteHeader tone="light" />
+      <SiteHeader tone="dark" pinned={false} />
       <main id="main">
         <Hero
           eyebrow={D.home.heroEyebrow}
@@ -144,8 +142,8 @@ export default async function Home() {
 
         <OutlinedReveal
           word="what"
-          lead="That's what"
-          trail="Main is"
+          lead="That's"
+          trail="Main"
           image={D.discover.image}
         />
 
@@ -169,33 +167,6 @@ export default async function Home() {
             </div>
           </section>
         )}
-
-        {/* --- Our work ----------------------------------------------------- */}
-        {featured.length > 0 && (
-          <section className="section-y bg-paper">
-            <div className="shell">
-              <div className="mb-14 grid gap-6 lg:grid-cols-12 lg:items-end lg:gap-8 max-lg:mb-10">
-                <div className="lg:col-span-7">
-                  <p className="eyebrow text-ink/45">What we have been doing</p>
-                  <h2
-                    className="headline mt-5 max-w-[12ch] text-ink"
-                    style={{ "--h-min": "34px", "--h-max": "56px" } as React.CSSProperties}
-                  >
-                    Our projects.
-                  </h2>
-                </div>
-                <div className="flex lg:col-span-5 lg:justify-end">
-                  <ArrowButton href="/blog" variant="dark">
-                    Read the stories
-                  </ArrowButton>
-                </div>
-              </div>
-              <ProjectShowcase projects={featured} />
-            </div>
-          </section>
-        )}
-
-        <FourWayTest />
 
         {/* --- Board -------------------------------------------------------- */}
         {board.length > 0 && (
@@ -223,6 +194,8 @@ export default async function Home() {
           </section>
         )}
 
+        <FourWayTest />
+
         {/* --- FAQ ---------------------------------------------------------- */}
         {faqs.length > 0 && (
           <section className="section-y bg-paper">
@@ -246,34 +219,6 @@ export default async function Home() {
           </section>
         )}
 
-        {/* --- Socials marquee ---------------------------------------------- */}
-        {site.socials.length > 0 && (
-          <section className="border-y border-line bg-paper py-10">
-            <Marquee>
-              {site.socials.map((s) => (
-                <Link
-                  key={s.label}
-                  href={s.href}
-                  {...(s.href.startsWith("http")
-                    ? { target: "_blank", rel: "noopener noreferrer" }
-                    : {})}
-                  className="marquee-link headline text-ink/25 transition-colors"
-                  style={
-                    {
-                      "--h-min": "28px",
-                      "--h-max": "40px",
-                      "--marquee-hover": "var(--color-starlight-deep)",
-                    } as React.CSSProperties
-                  }
-                >
-                  {s.label}
-                </Link>
-              ))}
-            </Marquee>
-          </section>
-        )}
-
-        {home.showCta && <CTABanner />}
       </main>
       <SiteFooter />
     </>

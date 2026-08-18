@@ -13,33 +13,45 @@
    ========================================================================== */
 
 @theme {
-  /* --- surfaces: warm, paper-like, never pure white --------------------- */
-  --color-paper: #f7f4ee;
-  --color-mist: #ece7dd;
-  --color-ink: #16150f;
-  --color-ink-soft: #46433a;
-  --color-space: #16150f;
-  --color-space-deep: #0c0b07;
+  /* =====================================================================
+     Palette: black · red · white · yellow.
+     Token NAMES are kept from the previous scheme on purpose — every existing
+     `bg-space` / `text-cranberry` reference re-skins from here, no component
+     sweep needed. `cranberry` is now the red; `starlight` is the yellow.
+     ===================================================================== */
 
-  /* --- the one accent: club gold ---------------------------------------- */
-  /* `starlight` fills (buttons, markers); `starlight-ink` is text on that fill;
-     `starlight-deep` is the only gold that passes AA as text on paper. */
-  --color-starlight: #e0a11b;
-  --color-starlight-ink: #2e1f00;
-  --color-starlight-deep: #8a5e06;
+  /* --- surfaces: clean white and true black (no warm tint) -------------- */
+  /* Deliberately neutral, not cream — the warmth is what made the palette read
+     as "unchanged". White sections and near-black sections now alternate. */
+  --color-paper: #ffffff;
+  --color-mist: #f0f0ee;
+  --color-ink: #0e0e0e;
+  --color-ink-soft: #454545;
+  --color-space: #141414;
+  --color-space-deep: #080808;
+
+  /* --- yellow accent (headline highlight, small fills) ------------------ */
+  /* `starlight` fills; `starlight-ink` is text on that fill; `starlight-deep`
+     is the only yellow that passes AA as text on white. */
+  --color-starlight: #f5b312;
+  --color-starlight-ink: #2a1d00;
+  --color-starlight-deep: #916100;
+
+  /* --- red: the primary accent — CTAs, tickers, pills, markers ---------- */
+  /* Named `cranberry` so every existing reference re-skins to red at once. */
+  --color-cranberry: #ec2b21;
+  --color-cranberry-ink: #ffffff;
 
   /* --- muted secondaries: avenue markers only --------------------------- */
   --color-comet: #7c93a3;
   --color-comet-ink: #16242c;
   --color-nebula: #8d7f95;
   --color-nebula-ink: #2a2230;
-  --color-cranberry: #b5654f;
-  --color-cranberry-ink: #f8ece8;
 
   /* --- hairlines -------------------------------------------------------- */
-  --color-line: rgb(22 21 15 / 0.14);
-  --color-line-strong: rgb(22 21 15 / 0.28);
-  --color-line-invert: rgb(247 244 238 / 0.18);
+  --color-line: rgb(14 14 14 / 0.12);
+  --color-line-strong: rgb(14 14 14 / 0.26);
+  --color-line-invert: rgb(255 255 255 / 0.15);
 
   --font-sans: var(--font-sans-var), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-display), ui-serif, Georgia, serif;
@@ -317,5 +329,66 @@ body {
   }
   html {
     scroll-behavior: auto;
+  }
+}
+
+/* =============================================================================
+   Custom cursor — a red arrow pointer standing in for the system one inside the
+   site. Only mounted on fine-pointer, motion-allowed devices (see CustomCursor).
+   ========================================================================== */
+
+/* Hide the native cursor only once the custom one is live, and never over text
+   fields where the caret must stay visible. */
+.has-custom-cursor,
+.has-custom-cursor a,
+.has-custom-cursor button,
+.has-custom-cursor [role="button"],
+.has-custom-cursor label,
+.has-custom-cursor summary {
+  cursor: none;
+}
+.has-custom-cursor input,
+.has-custom-cursor textarea,
+.has-custom-cursor select {
+  cursor: auto;
+}
+
+.cursor-arrow {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 10000;
+  pointer-events: none;
+  /* The SVG's tip sits a couple of px in from its box, so nudge the box so the
+     tip lands on the true pointer position. */
+  margin: -2px 0 0 -2px;
+  will-change: transform;
+  filter: drop-shadow(0 3px 6px rgb(0 0 0 / 0.45));
+  transition:
+    scale 0.18s var(--ease-out-quint),
+    opacity 0.2s ease,
+    rotate 0.18s var(--ease-out-quint);
+  transform-origin: 3px 3px;
+}
+/* Over anything clickable the arrow lifts a touch and tips forward. */
+.cursor-hot .cursor-arrow {
+  scale: 1.35;
+  rotate: -12deg;
+}
+/* A quick press dip. */
+.cursor-down .cursor-arrow {
+  scale: 0.82;
+}
+.cursor-hot.cursor-down .cursor-arrow {
+  scale: 1.15;
+}
+/* Pointer left the window. */
+.cursor-hidden .cursor-arrow {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cursor-arrow {
+    transition: none;
   }
 }

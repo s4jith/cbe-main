@@ -70,14 +70,14 @@ export default function OutlinedReveal({
       <div className="shell relative">
         <p
           className="flex flex-wrap items-center justify-center gap-x-[0.3em] gap-y-4 text-center font-sans font-extrabold leading-none tracking-[-0.02em] text-paper"
-          style={{ fontSize: "clamp(34px, 7vw, 104px)" }}
+          style={{ fontSize: "clamp(40px, 8vw, 124px)" }}
         >
           <span>{lead}</span>
           <m.span
             className="relative inline-block shrink-0 overflow-hidden rounded-full"
             style={{
-              width: "clamp(64px, 12vw, 176px)",
-              height: "clamp(64px, 12vw, 176px)",
+              width: "clamp(96px, 17vw, 260px)",
+              height: "clamp(96px, 17vw, 260px)",
               scale: reduced ? 1 : imageScale,
             }}
           >

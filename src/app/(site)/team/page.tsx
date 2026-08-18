@@ -4,7 +4,6 @@ import { SiteHeader, SiteFooter } from "@/components/SiteChrome";
 import Headline from "@/components/Headline";
 import Section, { Eyebrow, muted, solid } from "@/components/Section";
 import PostCard from "@/components/PostCard";
-import CTABanner from "@/components/CTABanner";
 import Reveal from "@/components/Reveal";
 import { cssColor } from "@/lib/theme";
 import { getMembers, getTeamContent, getVoices } from "@/lib/content";
@@ -189,7 +188,6 @@ export default async function TeamPage() {
           </Section>
         )}
 
-        {page.showCta && <CTABanner />}
       </main>
       <SiteFooter />
     </>

@@ -14,9 +14,16 @@ const EASE = [0.22, 0.61, 0.36, 1] as const;
 export default function Header({
   data,
   tone = "light",
+  pinned = true,
 }: {
   data: HeaderData;
   tone?: "light" | "dark";
+  /**
+   * When false the bar sits at the top of the page and scrolls away with it,
+   * rather than following the viewport. The home page uses this so the nav is
+   * only present over the hero — it never floats over the sections below.
+   */
+  pinned?: boolean;
 }) {
   const pathname = usePathname();
   const reduced = useReducedMotion();
@@ -50,9 +57,13 @@ export default function Header({
     return () => ro.disconnect();
   }, []);
 
+  // An unpinned bar never condenses — it scrolls out of view instead of turning
+  // into a sticky blurred strip.
+  const condensedBar = pinned && condensed;
+
   // Once the bar has its own paper background, its contents are always on light —
   // regardless of how dark the hero underneath happens to be.
-  const onLight = condensed || tone === "light";
+  const onLight = condensedBar || tone === "light";
 
   // Hold the page still behind the overlay, and hand focus to the close button so
   // keyboard users land inside the menu they just opened.
@@ -83,23 +94,23 @@ export default function Header({
   }, [open]);
 
   return (
-    <header ref={barRef} className="fixed inset-x-0 top-0 z-50">
+    <header ref={barRef} className={`${pinned ? "fixed" : "absolute"} inset-x-0 top-0 z-50`}>
       <m.div
         className="relative"
         animate={{
-          backgroundColor: condensed ? "rgba(247,244,238,0.82)" : "rgba(247,244,238,0)",
+          backgroundColor: condensedBar ? "rgba(247,244,238,0.82)" : "rgba(247,244,238,0)",
         }}
         transition={{ duration: 0.4, ease: EASE }}
         style={{
-          backdropFilter: condensed ? "blur(12px)" : "none",
-          WebkitBackdropFilter: condensed ? "blur(12px)" : "none",
-          borderBottom: `1px solid ${condensed ? "var(--color-line)" : "transparent"}`,
+          backdropFilter: condensedBar ? "blur(12px)" : "none",
+          WebkitBackdropFilter: condensedBar ? "blur(12px)" : "none",
+          borderBottom: `1px solid ${condensedBar ? "var(--color-line)" : "transparent"}`,
           transition: "border-color 400ms, backdrop-filter 400ms",
         }}
       >
         <m.div
           className="shell flex items-center gap-8"
-          animate={{ paddingTop: condensed ? 12 : 22, paddingBottom: condensed ? 12 : 22 }}
+          animate={{ paddingTop: condensedBar ? 12 : 22, paddingBottom: condensedBar ? 12 : 22 }}
           transition={{ duration: 0.4, ease: EASE }}
         >
           <Link
@@ -109,7 +120,7 @@ export default function Header({
           >
             {data.logo && (
               <m.div
-                animate={{ width: condensed ? 30 : 36, height: condensed ? 30 : 36 }}
+                animate={{ width: condensedBar ? 44 : 56, height: condensedBar ? 44 : 56 }}
                 transition={{ duration: 0.4, ease: EASE }}
                 className="relative"
               >
@@ -117,7 +128,7 @@ export default function Header({
                   src={data.logo}
                   alt=""
                   fill
-                  sizes="36px"
+                  sizes="56px"
                   className="object-contain"
                   priority
                 />
@@ -125,7 +136,7 @@ export default function Header({
             )}
             {data.wordmark && (
               <span
-                className={`text-[15px] font-semibold tracking-[-0.01em] transition-colors duration-300 ${
+                className={`text-[22px] font-bold tracking-[-0.01em] transition-colors duration-300 max-md:text-[19px] ${
                   onLight ? "text-ink" : "text-paper"
                 }`}
               >

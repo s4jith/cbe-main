@@ -5,7 +5,6 @@ import { notFound } from "next/navigation";
 import { SiteHeader, SiteFooter } from "@/components/SiteChrome";
 import Prose from "@/components/Prose";
 import Reveal from "@/components/Reveal";
-import CTABanner from "@/components/CTABanner";
 import { getBlogBySlug, getBlogs } from "@/lib/content";
 import { formatDate } from "@/lib/format";
 
@@ -116,7 +115,6 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
           </div>
         </article>
 
-        <CTABanner />
       </main>
       <SiteFooter />
     </>
