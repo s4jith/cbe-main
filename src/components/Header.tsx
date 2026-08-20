@@ -136,7 +136,7 @@ export default function Header({
             )}
             {data.wordmark && (
               <span
-                className={`text-[22px] font-bold tracking-[-0.01em] transition-colors duration-300 max-md:text-[19px] ${
+                className={`text-[22px] font-bold uppercase tracking-[0.01em] transition-colors duration-300 max-md:text-[18px] ${
                   onLight ? "text-ink" : "text-paper"
                 }`}
               >

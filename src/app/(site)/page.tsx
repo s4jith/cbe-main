@@ -137,13 +137,13 @@ export default async function Home() {
                 }))
               : D.SERVICE_BANDS
           }
-          ticker={`${site.shortName} ✦`}
+          ticker={`${site.shortName} ·`}
         />
 
         <OutlinedReveal
           word="what"
           lead="That's"
-          trail="Main"
+          trail="Coimbatore Main"
           image={D.discover.image}
         />
 

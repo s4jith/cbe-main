@@ -5,7 +5,7 @@ import Image from "next/image";
 import { m, useScroll, useTransform, useReducedMotion } from "framer-motion";
 import { PillButton, ArrowButton } from "@/components/Buttons";
 import PerspectiveGrid from "@/components/PerspectiveGrid";
-import HeroOrbit from "@/components/HeroOrbit";
+import RotaryWheel from "@/components/RotaryWheel";
 import ScrollCurve from "@/components/ScrollCurve";
 import BuildingBlocks from "@/components/BuildingBlocks";
 import type { HeroCard } from "@/lib/types";
@@ -80,7 +80,7 @@ export default function Hero({
             aria-hidden
             className="pointer-events-none absolute -right-[8%] top-1/2 h-[900px] w-[900px] -translate-y-1/2 max-xl:h-[640px] max-xl:w-[640px] max-lg:hidden"
           >
-            <HeroOrbit />
+            <RotaryWheel />
           </div>
         </>
       )}

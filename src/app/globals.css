@@ -359,36 +359,42 @@ body {
   left: 0;
   z-index: 10000;
   pointer-events: none;
-  /* The SVG's tip sits a couple of px in from its box, so nudge the box so the
-     tip lands on the true pointer position. */
-  margin: -2px 0 0 -2px;
   will-change: transform;
-  filter: drop-shadow(0 3px 6px rgb(0 0 0 / 0.45));
-  transition:
-    scale 0.18s var(--ease-out-quint),
-    opacity 0.2s ease,
-    rotate 0.18s var(--ease-out-quint);
-  transform-origin: 3px 3px;
+  /* Translation ONLY. Never put `scale`/`rotate` here: the CSS transform
+     properties compose as rotate x scale x transform, so a scale on this
+     element would multiply the translation and fling the arrow off-target. */
 }
-/* Over anything clickable the arrow lifts a touch and tips forward. */
-.cursor-hot .cursor-arrow {
-  scale: 1.35;
-  rotate: -12deg;
+
+.cursor-arrow__inner {
+  display: block;
+  /* The SVG's tip sits at about (3, 2) inside its box — pull the box back so
+     the tip lands on the true pointer, and scale from that same point so the
+     tip stays pinned as the arrow grows. */
+  margin: -2px 0 0 -3px;
+  transform-origin: 3px 2px;
+  filter: drop-shadow(0 3px 6px rgb(0 0 0 / 0.45));
+  transition: transform 0.16s var(--ease-out-quint);
+}
+
+/* Over anything clickable the arrow swells; the tip does not move. */
+.cursor-hot .cursor-arrow__inner {
+  transform: scale(1.3);
 }
 /* A quick press dip. */
-.cursor-down .cursor-arrow {
-  scale: 0.82;
+.cursor-down .cursor-arrow__inner {
+  transform: scale(0.85);
 }
-.cursor-hot.cursor-down .cursor-arrow {
-  scale: 1.15;
+.cursor-hot.cursor-down .cursor-arrow__inner {
+  transform: scale(1.12);
 }
 /* Pointer left the window. */
 .cursor-hidden .cursor-arrow {
   opacity: 0;
+  transition: opacity 0.2s ease;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .cursor-arrow {
+  .cursor-arrow__inner {
     transition: none;
   }
 }

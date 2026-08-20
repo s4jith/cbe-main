@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import SocialIcon from "@/components/SocialIcon";
 import BackToTop from "@/components/BackToTop";
+import FooterWordmark from "@/components/FooterWordmark";
 import * as D from "@/lib/defaults";
 import type { FooterData, NavLink, SiteInfo } from "@/lib/types";
 
@@ -29,27 +30,27 @@ export default function Footer({
   site: SiteInfo;
   menu: NavLink[];
 }) {
-  const letters = data.wordmark.toUpperCase().split("");
-
   return (
     <footer className="flex min-h-dvh flex-col bg-space-deep text-paper">
       <div className="shell flex flex-1 flex-col pt-24 max-md:pt-16">
         {/* --- identity / menu / contact -------------------------------- */}
         <div className="grid gap-x-10 gap-y-14 md:grid-cols-12">
           <div className="md:col-span-6">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4">
               <Image
                 src={D.BRAND.logo}
                 alt=""
-                width={48}
-                height={48}
-                className="h-12 w-12 object-contain"
+                width={88}
+                height={88}
+                className="h-[88px] w-[88px] object-contain max-md:h-16 max-md:w-16"
               />
               <div>
-                <p className="title-sans text-[18px] leading-none text-paper">
+                <p className="title-sans text-[30px] leading-none text-paper max-md:text-[22px]">
                   {data.brandText} <span className="text-starlight">{data.brandSymbol}</span>
                 </p>
-                <p className="mt-1.5 text-[12px] leading-tight text-paper/45">{site.name}</p>
+                <p className="mt-2 text-[15px] leading-tight text-paper/50 max-md:text-[13px]">
+                  {site.name}
+                </p>
               </div>
             </div>
 
@@ -123,15 +124,7 @@ export default function Footer({
         {/* --- the wordmark, spread across the foot --------------------- */}
         <div className="mt-auto pt-16 max-md:pt-12">
           <div className="border-t border-line-invert pt-8" />
-          <div
-            aria-hidden
-            className="flex select-none items-end justify-between font-sans font-black leading-[0.8] text-paper"
-            style={{ fontSize: "clamp(64px, 21vw, 300px)", letterSpacing: "-0.01em" }}
-          >
-            {letters.map((ch, i) => (
-              <span key={i}>{ch}</span>
-            ))}
-          </div>
+          <FooterWordmark wordmark={data.wordmark} />
         </div>
 
         {/* --- bottom bar ------------------------------------------------ */}

@@ -15,7 +15,7 @@ export const BRAND = {
 /** Club identity, contact details and form endpoints — was "Site Settings" in the CMS. */
 export const SITE = {
   name: "Rotaract Club of Coimbatore Main",
-  shortName: "Main",
+  shortName: "Coimbatore Main",
   parent: "Family of Rotary Club of Coimbatore",
   clubId: "87596",
   group: "Group 1",
@@ -165,15 +165,15 @@ export const discover = {
 export const header = {
   logoAlt: "Rotaract Club of Coimbatore Main",
   logoSize: 44,
-  wordmark: "Main",
-  wordmarkSymbol: "✦",
+  wordmark: "Coimbatore Main",
+  wordmarkSymbol: "",
   menuLabel: "Menu",
   cta: { label: "Join Us", href: "/join", style: "pill" as const },
 };
 
 export const footer = {
-  brandText: "Main",
-  brandSymbol: "✦",
+  brandText: "Coimbatore Main",
+  brandSymbol: "",
   brandLine: "{parent} · Club ID {clubId} · {group} · {district}",
   wordmark: "Main",
   copyright: "© {year} {name}. All rights reserved.",

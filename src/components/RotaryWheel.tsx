@@ -3,93 +3,168 @@
 import { useEffect, useRef } from "react";
 
 /**
- * A rotating wireframe globe, drawn in 3D on a canvas.
+ * The Rotary International emblem, turned in 3D on a canvas.
  *
- * Latitude rings and longitude meridians are projected each frame with a steady
- * spin plus a slow wobble, and the pointer nudges the tilt so the globe leans
- * toward the cursor. Lines fade with depth, so the far side reads as behind the
- * near side rather than tangled with it.
+ * Painted once, face-on, into an offscreen texture — the 24 cogs, six spokes
+ * and their open windows, the keyed hub, and ROTARY / INTERNATIONAL set into
+ * the band — then spun in its own plane and foreshortened by the tilt, with
+ * darker copies stacked behind it for thickness.
  *
- * Hand-rolled against the 2D context instead of three.js — the shape is simple
- * and the hero already carries the intro's budget; a WebGL globe plugin would be
- * hundreds of kilobytes for this one flourish.
+ * Painting the lettering flat and rotating the finished artwork is what keeps
+ * the words true: placing glyphs one at a time inside a projected 3D scene
+ * distorts them, and the type is the part people recognise.
  */
 
-const LAT_LINES = 13; // parallels
-const LON_LINES = 24; // meridians
-const SEG = 64; // points per line
+const TEX = 1200; // texture resolution — built once
+const TEETH = 24;
 
-type V3 = { x: number; y: number; z: number };
+// Radii as a fraction of the texture, so 0.5 is the edge.
+const R_TIP = 0.5; // cog tip
+const R_ROOT = 0.432; // cog root / outer edge of the lettered band
+const R_BAND = 0.312; // inner edge of the band
+const R_HUB = 0.155; // outer edge of the centre hub
+const R_BORE = 0.068; // the hole through the middle
 
-/** Build the sphere's line set once in model space. */
-function buildGlobe(): V3[][] {
-  const lines: V3[][] = [];
+const SPOKES = 6;
+const SPOKE_HALF = 0.115; // half the angular width of a spoke, in radians
+const LAYERS = 7; // stacked copies that give the wheel its thickness
 
-  // Parallels: constant latitude, sweep longitude.
-  for (let i = 1; i < LAT_LINES; i++) {
-    const phi = (i / LAT_LINES) * Math.PI - Math.PI / 2;
-    const ring: V3[] = [];
-    for (let j = 0; j <= SEG; j++) {
-      const theta = (j / SEG) * Math.PI * 2;
-      ring.push({
-        x: Math.cos(phi) * Math.cos(theta),
-        y: Math.sin(phi),
-        z: Math.cos(phi) * Math.sin(theta),
-      });
-    }
-    lines.push(ring);
-  }
-
-  // Meridians: constant longitude, sweep latitude pole to pole.
-  for (let i = 0; i < LON_LINES; i++) {
-    const theta = (i / LON_LINES) * Math.PI * 2;
-    const meridian: V3[] = [];
-    for (let j = 0; j <= SEG; j++) {
-      const phi = (j / SEG) * Math.PI - Math.PI / 2;
-      meridian.push({
-        x: Math.cos(phi) * Math.cos(theta),
-        y: Math.sin(phi),
-        z: Math.cos(phi) * Math.sin(theta),
-      });
-    }
-    lines.push(meridian);
-  }
-
-  return lines;
+/** Radius of the cog at an angle: a clamped raised cosine — flat tips, square roots. */
+function cogRadius(theta: number): number {
+  const shaped = Math.max(-1, Math.min(1, Math.cos(theta * TEETH) * 2.1));
+  return R_ROOT + (R_TIP - R_ROOT) * (shaped * 0.5 + 0.5);
 }
-
-type Spike = { x: number; y: number; z: number; len: number; seg: boolean };
 
 /**
- * The white rays firing out of the globe in the reference. Each is a point on
- * the sphere plus an outward length; a mix of solid streaks and shorter tick
- * marks keeps them from reading as a uniform hedgehog.
+ * Walk a circular arc, continuing the current subpath unless `move` is set.
+ *
+ * The `move` flag is the whole point. An arc helper that always begins with
+ * moveTo cannot build a closed sector — each call breaks off a new subpath,
+ * and the sector collapses into two thin slivers.
  */
-function buildSpikes(count = 90): Spike[] {
-  const spikes: Spike[] = [];
-  let seed = 1337;
-  const rand = () => {
-    seed = (seed * 9301 + 49297) % 233280;
-    return seed / 233280;
-  };
-  for (let i = 0; i < count; i++) {
-    // Even-ish distribution over the sphere.
-    const u = rand() * 2 - 1;
-    const theta = rand() * Math.PI * 2;
-    const r = Math.sqrt(1 - u * u);
-    const long = i % 3 === 0;
-    spikes.push({
-      x: r * Math.cos(theta),
-      y: u,
-      z: r * Math.sin(theta),
-      len: long ? 0.35 + rand() * 0.85 : 0.06 + rand() * 0.14,
-      seg: long,
-    });
+function arc(
+  ctx: CanvasRenderingContext2D,
+  r: number,
+  from: number,
+  to: number,
+  steps: number,
+  move: boolean,
+) {
+  for (let i = 0; i <= steps; i++) {
+    const a = from + ((to - from) * i) / steps;
+    const x = Math.cos(a) * r;
+    const y = Math.sin(a) * r;
+    if (i === 0 && move) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
   }
-  return spikes;
 }
 
-export default function HeroOrbit({ className = "" }: { className?: string }) {
+/**
+ * Set a string along a circular arc.
+ *
+ * Along the bottom the glyphs are walked the other way round *and* turned over.
+ * Doing only one of the two leaves the word mirrored — LANOITANRETNI.
+ */
+function arcText(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  radius: number,
+  centreAngle: number,
+  spread: number,
+  bottom: boolean,
+) {
+  const chars = [...text];
+  const stepAngle = spread / Math.max(1, chars.length - 1);
+  const dir = bottom ? -1 : 1;
+  const start = centreAngle - (dir * spread) / 2;
+
+  chars.forEach((ch, i) => {
+    const a = start + dir * stepAngle * i;
+    ctx.save();
+    ctx.translate(Math.cos(a) * radius, Math.sin(a) * radius);
+    ctx.rotate(bottom ? a - Math.PI / 2 : a + Math.PI / 2);
+    ctx.fillText(ch, 0, 0);
+    ctx.restore();
+  });
+}
+
+/** Paint the emblem once, face-on, centred in a TEX x TEX canvas. */
+function buildTexture(): HTMLCanvasElement {
+  const c = document.createElement("canvas");
+  c.width = TEX;
+  c.height = TEX;
+  const ctx = c.getContext("2d")!;
+  const S = TEX;
+  ctx.translate(S / 2, S / 2);
+
+  // --- the solid wheel, every opening punched by the even-odd rule --------
+  ctx.beginPath();
+
+  const rim = TEETH * 30;
+  for (let i = 0; i < rim; i++) {
+    const a = (i / rim) * Math.PI * 2;
+    const r = cogRadius(a) * S;
+    const x = Math.cos(a) * r;
+    const y = Math.sin(a) * r;
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.closePath();
+
+  // Six open windows. The spokes are what is left between them — sitting at
+  // 0, 60, 120 … so a pair runs horizontally, anchoring the band on the two
+  // sides the lettering leaves empty.
+  const step = (Math.PI * 2) / SPOKES;
+  for (let k = 0; k < SPOKES; k++) {
+    const from = k * step + SPOKE_HALF;
+    const to = (k + 1) * step - SPOKE_HALF;
+    arc(ctx, R_BAND * S, from, to, 36, true);
+    arc(ctx, R_HUB * S, to, from, 24, false);
+    ctx.closePath();
+  }
+
+  // The bore, and the keyway at the top that makes it a Rotary wheel rather
+  // than a plain gear.
+  const kw = 0.023 * S;
+  const bore = R_BORE * S;
+  const phi = Math.asin(kw / bore);
+  const top = -Math.PI / 2;
+  ctx.moveTo(Math.cos(top + phi) * bore, Math.sin(top + phi) * bore);
+  arc(ctx, bore, top + phi, top - phi + Math.PI * 2, 72, false);
+  ctx.lineTo(-kw, -(R_HUB - 0.028) * S);
+  ctx.lineTo(kw, -(R_HUB - 0.028) * S);
+  ctx.closePath();
+
+  // A raking gradient so the face reads as struck metal rather than flat ink.
+  const grad = ctx.createLinearGradient(-S * 0.38, -S * 0.44, S * 0.4, S * 0.46);
+  grad.addColorStop(0, "#ffd970");
+  grad.addColorStop(0.4, "#f5b312");
+  grad.addColorStop(1, "#c07f08");
+  ctx.fillStyle = grad;
+  ctx.fill("evenodd");
+
+  // --- the lettering, cut clean through the band --------------------------
+  // Knocking the words out rather than painting them in a background colour
+  // keeps the emblem transparent wherever the page shows behind it.
+  ctx.globalCompositeOperation = "destination-out";
+  ctx.fillStyle = "#000";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+
+  const band = ((R_ROOT + R_BAND) / 2) * S;
+  const face = '"Inter", "Helvetica Neue", Arial, sans-serif';
+
+  ctx.font = `900 ${0.072 * S}px ${face}`;
+  arcText(ctx, "ROTARY", band, -Math.PI / 2, 1.24, false);
+
+  ctx.font = `900 ${0.051 * S}px ${face}`;
+  arcText(ctx, "INTERNATIONAL", band, Math.PI / 2, 2.18, true);
+
+  ctx.globalCompositeOperation = "source-over";
+  return c;
+}
+
+export default function RotaryWheel({ className = "" }: { className?: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -101,126 +176,96 @@ export default function HeroOrbit({ className = "" }: { className?: string }) {
     const ctx: CanvasRenderingContext2D = context;
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const lines = buildGlobe();
-    const spikes = buildSpikes();
+    let texture = buildTexture();
 
     let width = 0;
     let height = 0;
     let raf = 0;
     let visible = true;
+    let lastTime = 0;
     let targetTiltX = 0;
     let targetTiltY = 0;
     let tiltX = 0;
     let tiltY = 0;
+    let alive = true;
 
     const dpr = () => Math.min(window.devicePixelRatio || 1, 2);
 
     function resize() {
       const rect = canvas.getBoundingClientRect();
+      if (rect.width === width && rect.height === height) return;
       width = rect.width;
       height = rect.height;
       canvas.width = Math.round(width * dpr());
       canvas.height = Math.round(height * dpr());
-      ctx.setTransform(dpr(), 0, 0, dpr(), 0, 0);
+      // Resizing clears the backing store, so repaint at once — a paused wheel
+      // (reduced motion, or a hidden tab, which gets no frames at all) would
+      // otherwise be wiped blank by a resize it never redraws from.
+      draw(lastTime);
     }
 
     function draw(time: number) {
+      lastTime = time;
+      ctx.setTransform(dpr(), 0, 0, dpr(), 0, 0);
       ctx.clearRect(0, 0, width, height);
       if (width === 0 || height === 0) return;
 
       const cx = width / 2;
       const cy = height / 2;
-      const radius = Math.min(width, height) * 0.42;
-      const depth = 3;
+      // Room for the stacked depth copies and the tilt, so the cogs are never
+      // clipped by the edge of the canvas.
+      const size = Math.min(width, height) * 0.8;
 
       tiltX += (targetTiltX - tiltX) * 0.05;
       tiltY += (targetTiltY - tiltY) * 0.05;
 
-      // Continuous spin about the vertical axis, plus a gentle nodding wobble.
-      const ry = time * 0.00022 + tiltY;
-      const rx = 0.42 + Math.sin(time * 0.00013) * 0.08 + tiltX;
+      // A slow rock rather than a full revolution: text fixed to a wheel turns
+      // with it, so a continuous spin leaves ROTARY upside down half the time.
+      const spin = Math.sin(time * 0.00019) * 0.22;
+      const ry = 0.62 + Math.sin(time * 0.00011) * 0.1 + tiltY;
+      const rx = -0.3 + Math.cos(time * 0.00009) * 0.06 + tiltX;
 
-      const cosY = Math.cos(ry);
-      const sinY = Math.sin(ry);
-      const cosX = Math.cos(rx);
-      const sinX = Math.sin(rx);
+      // A disc tilted about an axis foreshortens along it, so the tilt angles
+      // become the two scale factors; the spin stays inside them, in-plane.
+      const sx = Math.cos(ry);
+      const sy = Math.cos(rx);
 
-      for (const line of lines) {
-        ctx.beginPath();
-        let started = false;
-        let prevAlpha = 0;
+      // Thickness runs along the wheel's own normal, which the tilt points off
+      // to one side — so the stack of copies leans that way.
+      const stepX = Math.sin(ry) * size * 0.016;
+      const stepY = -Math.sin(rx) * size * 0.016;
 
-        for (const p of line) {
-          // rotate about Y, then X.
-          const x1 = p.x * cosY - p.z * sinY;
-          const z1 = p.x * sinY + p.z * cosY;
-          const y2 = p.y * cosX - z1 * sinX;
-          const z2 = p.y * sinX + z1 * cosX;
-
-          const k = depth / (depth - z2);
-          const sx = cx + x1 * radius * k;
-          const sy = cy + y2 * radius * k;
-
-          // Depth → opacity. z2 runs roughly [-1, 1]; front is brighter.
-          const alpha = 0.12 + ((z2 + 1) / 2) * 0.5;
-
-          if (!started) {
-            ctx.moveTo(sx, sy);
-            started = true;
-          } else {
-            // Stroke each segment at the mean depth of its endpoints so the far
-            // side genuinely recedes rather than drawing at one flat opacity.
-            ctx.lineTo(sx, sy);
-          }
-          prevAlpha = alpha;
+      const paint = (offX: number, offY: number, tint: string | null) => {
+        ctx.save();
+        ctx.translate(cx + offX, cy + offY);
+        ctx.scale(sx, sy);
+        ctx.rotate(spin);
+        ctx.drawImage(texture, -size / 2, -size / 2, size, size);
+        if (tint) {
+          // Darken this copy in place, clipped to the artwork's own alpha.
+          ctx.globalCompositeOperation = "source-atop";
+          ctx.fillStyle = tint;
+          ctx.fillRect(-size / 2, -size / 2, size, size);
+          ctx.globalCompositeOperation = "source-over";
         }
+        ctx.restore();
+      };
 
-        ctx.strokeStyle = `rgba(230, 51, 41, ${prevAlpha.toFixed(3)})`;
-        ctx.lineWidth = 1;
-        ctx.stroke();
+      // Back to front. The tint is a deep amber rather than black, so the
+      // milled edge stays metal instead of turning into a drop shadow.
+      for (let i = LAYERS; i >= 1; i--) {
+        const t = i / LAYERS;
+        paint(stepX * i, stepY * i, `rgba(58, 32, 2, ${(0.42 + t * 0.4).toFixed(3)})`);
       }
+      paint(0, 0, null);
 
-      // --- radiating streaks ------------------------------------------
-      for (const sp of spikes) {
-        const bx = sp.x * cosY - sp.z * sinY;
-        const bz = sp.x * sinY + sp.z * cosY;
-        const by2 = sp.y * cosX - bz * sinX;
-        const bz2 = sp.y * sinX + bz * cosX;
-
-        // Tip is the same direction pushed outward past the surface.
-        const scaleTip = 1 + sp.len;
-        const tx = bx * scaleTip;
-        const tyv = by2 * scaleTip;
-        const tz2 = bz2 * scaleTip;
-
-        const kb = depth / (depth - bz2);
-        const kt = depth / (depth - tz2);
-        const bxs = cx + bx * radius * kb;
-        const bys = cy + by2 * radius * kb;
-        const txs = cx + tx * radius * kt;
-        const tys = cy + tyv * radius * kt;
-
-        // Only streaks on the near face read; the far ones are hidden by the
-        // globe in front of them anyway.
-        const facing = (bz2 + 1) / 2;
-        const alpha = Math.max(0, facing - 0.35) * (sp.seg ? 0.85 : 0.55);
-        if (alpha <= 0.02) continue;
-
-        ctx.beginPath();
-        ctx.moveTo(bxs, bys);
-        ctx.lineTo(txs, tys);
-        ctx.strokeStyle = `rgba(255, 255, 255, ${alpha.toFixed(3)})`;
-        ctx.lineWidth = sp.seg ? 1 : 1.4;
-        ctx.stroke();
-      }
-
-      // A brighter core glow where the meridians bunch, echoing the reference.
-      const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius * 0.7);
-      glow.addColorStop(0, "rgba(230, 51, 41, 0.10)");
-      glow.addColorStop(1, "rgba(230, 51, 41, 0)");
+      // A soft bloom so the wheel sits in light rather than on flat ground.
+      const glow = ctx.createRadialGradient(cx, cy, size * 0.28, cx, cy, size * 0.86);
+      glow.addColorStop(0, "rgba(245, 179, 18, 0.11)");
+      glow.addColorStop(1, "rgba(245, 179, 18, 0)");
       ctx.fillStyle = glow;
       ctx.beginPath();
-      ctx.arc(cx, cy, radius * 0.7, 0, Math.PI * 2);
+      ctx.arc(cx, cy, size * 0.86, 0, Math.PI * 2);
       ctx.fill();
     }
 
@@ -237,20 +282,27 @@ export default function HeroOrbit({ className = "" }: { className?: string }) {
       raf = 0;
     }
 
+    // A ResizeObserver rather than a measure at mount: the hero is still being
+    // transformed by the intro curtain when this first runs, so a one-shot
+    // measurement reads zero and the wheel never gets a backing store.
+    const ro = new ResizeObserver(resize);
+    ro.observe(canvas);
     resize();
-    if (reduced) draw(0);
-    else start();
+    if (!reduced) start();
 
-    const onResize = () => {
-      resize();
-      if (reduced) draw(0);
-    };
-    window.addEventListener("resize", onResize);
+    // The texture is struck once, and at that moment the webfont may not have
+    // arrived — canvas falls back silently and the lettering is set in the
+    // wrong face. Strike it again once the fonts are in.
+    document.fonts.ready.then(() => {
+      if (!alive) return;
+      texture = buildTexture();
+      draw(lastTime);
+    });
 
     const onPointer = (e: PointerEvent) => {
       if (reduced || e.pointerType !== "mouse") return;
-      targetTiltY = (e.clientX / window.innerWidth - 0.5) * 0.8;
-      targetTiltX = (e.clientY / window.innerHeight - 0.5) * 0.5;
+      targetTiltY = (e.clientX / window.innerWidth - 0.5) * 0.5;
+      targetTiltX = (e.clientY / window.innerHeight - 0.5) * 0.34;
     };
     window.addEventListener("pointermove", onPointer, { passive: true });
 
@@ -273,9 +325,10 @@ export default function HeroOrbit({ className = "" }: { className?: string }) {
     document.addEventListener("visibilitychange", onVisibility);
 
     return () => {
+      alive = false;
       stop();
       io.disconnect();
-      window.removeEventListener("resize", onResize);
+      ro.disconnect();
       window.removeEventListener("pointermove", onPointer);
       document.removeEventListener("visibilitychange", onVisibility);
     };
